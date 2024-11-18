@@ -3,8 +3,9 @@
 <mapper namespace="com.itheima.mp.mapper.UserMapper">
     <!--    自定义SQL-->
     <update id="updateBalanceByIds">
-        update user set balance = balance - #{amount} ${ew.customSqlSegment}
+        update tb_user set balance = balance - #{amount} ${ew.customSqlSegment}
     </update>
+
 
     <!--
     <insert id="saveUser" parameterType="com.itheima.mp.domain.po.User">
