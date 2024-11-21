@@ -1392,9 +1392,15 @@ spring:
 
 在使用MybatisPlus以后，基础的`Mapper`、`Service`、`PO`代码相对固定，重复编写也比较麻烦。因此MybatisPlus官方提供了代码生成器根据数据库表结构生成`PO`、`Mapper`、`Service`等相关代码。只不过代码生成器同样要编码使用，也很麻烦。
 
-这里推荐大家使用一款`MybatisPlus`的插件，它可以基于图形化界面完成`MybatisPlus`的代码生成，非常简单。
+[代码生成器 | MyBatis-Plus](https://www.baomidou.com/guides/new-code-generator/)
 
-### 3.1.1.安装插件
+[Mybatis X 插件 | MyBatis-Plus](https://www.baomidou.com/guides/mybatis-x/)
+
+<iframe src="https://www.baomidou.com/guides/new-code-generator/" width="100%" height="500px"></iframe>
+
+这里我们不使用官方的，推荐大家使用一款`MybatisPlus`的插件，它可以基于图形化界面完成`MybatisPlus`的代码生成，非常简单。
+
+### 3.1.1 安装插件
 
 在`Idea`的plugins市场中搜索并安装`MyBatisPlus`插件：
 
@@ -1402,11 +1408,13 @@ spring:
 
 然后重启你的Idea即可使用。
 
-### 3.1.2.使用
+### 3.1.2 使用
 
-刚好数据库中还有一张address表尚未生成对应的实体和mapper等基础代码。我们利用插件生成一下。 首先需要配置数据库地址，在Idea顶部菜单中，找到`other`，选择`Config Database`：
+刚好数据库中还有一张address表尚未生成对应的实体和mapper等基础代码。我们利用插件生成一下。 首先需要配置数据库地址，在Idea顶部菜单中，找到`other`，选择`Config Database`配置数据库表：
 
 ![img](./MybatisPlusImg/1731828032412-207.png)
+
+新版的idea在Tools里，找不到就直接搜`Config Database`
 
 在弹出的窗口中填写数据库连接的基本信息：
 
@@ -1414,7 +1422,7 @@ spring:
 
 点击OK保存。
 
-然后再次点击Idea顶部菜单中的other，然后选择`Code Generator`:
+然后再次点击Idea顶部菜单中的other，然后选择`Code Generator`代码生成器:
 
 ![img](./MybatisPlusImg/1731828032412-209.png)
 
@@ -1422,13 +1430,23 @@ spring:
 
 ![img](./MybatisPlusImg/1731828032412-210.png)
 
+![image-20241121194229538](./MybatisPlusImg/image-20241121194229538.png)
+
+`over file`：是否覆盖文件
+
 最终，代码自动生成到指定的位置了：
 
-## 3.2.静态工具
+## 3.2 静态工具
 
-有的时候Service之间也会相互调用，为了避免出现循环依赖问题，MybatisPlus提供一个静态工具类：`Db`，其中的一些静态方法与`IService`中方法签名基本一致，也可以帮助我们实现CRUD功能：
+### 3.2.1 静态工具api
+
+有的时候Service之间也会相互调用，为了避免出现循环依赖问题，MybatisPlus提供一个**静态工具类：`Db`**，其中的一些静态方法**与`IService`中方法签名基本一致**，也可以帮助我们实现CRUD功能：
 
 ![img](./MybatisPlusImg/1731828032412-211.png)
+
+静态工具与IService接口的差别就是需要额外传一个参数，也就是IService的泛型
+
+除了`save...` 和 `update...`方法不用传该参数其他都需要
 
 示例：
 
@@ -1457,17 +1475,25 @@ void testDbUpdate() {
 }
 ```
 
-需求：改造根据id用户查询的接口，查询用户的同时返回用户收货地址列表
+### 3.2.2 静态工具案例
 
-首先，我们要添加一个收货地址的VO对象：
+**情景**：业务需要操作多个表，如果在service中注入其他service会造成循环依赖，这时候我们就需要使用静态工具类避免循环依赖。
+
+有循环依赖尽量避免
+
+需求：
+
+- 案例一：改造根据id查询用户的接口，查询用户的同时，查询出用户对应的所有地址
+- 案例二：改造根据id批量查询用户的接口，查询用户的同时，查询出用户对应的所有地址
+- ~~案例三：实现根据用户id查询收货地址功能，需要验证用户状态，冻结用户抛出异常（练习）~~
+
+#### 3.2.2.1  静态工具案例一
+
+**需求：改造根据id用户查询的接口，查询用户的同时返回用户收货地址列表**
+
+**首先，我们要添加一个收货地址的`VO`对象：**
 
 ```Java
-package com.itheima.mp.domain.vo;
-
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
-
 @Data
 @ApiModel(description = "收货地址VO")
 public class AddressVO{
@@ -1504,17 +1530,25 @@ public class AddressVO{
 }
 ```
 
-然后，改造原来的UserVO，添加一个地址属性：
+然后，改造原来的`UserVO`，添加一个地址属性：
 
 ![img](./MybatisPlusImg/1731828032412-212.png)
 
-接下来，修改UserController中根据id查询用户的业务接口：
+接下来，修改`UserController`中根据id查询用户的业务接口：
 
 ```Java
 @GetMapping("/{id}")
 @ApiOperation("根据id查询用户")
 public UserVO queryUserById(@PathVariable("id") Long userId){
-    // 基于自定义service方法查询
+     /* // 修改前 不返回用户收货地址时 单表查询
+        // 1. 查询用户
+        User user = userService.getById(id);// IService中mp帮我们写好的方法
+
+        // 2. 将PO拷贝到VO返回
+        return BeanUtil.copyProperties(user, UserVO.class);
+     */
+
+    // 基于自定义service方法查询  修改后 返回收货地址 业务操作多个表
     return userService.queryUserAndAddressById(userId);
 }
 ```
@@ -1522,59 +1556,139 @@ public UserVO queryUserById(@PathVariable("id") Long userId){
 由于查询业务复杂，所以要在service层来实现。首先在IUserService中定义方法：
 
 ```Java
-package com.itheima.mp.service;
-
-import com.baomidou.mybatisplus.extension.service.IService;
-import com.itheima.mp.domain.po.User;
-import com.itheima.mp.domain.vo.UserVO;
-
 public interface IUserService extends IService<User> {
-    void deduct(Long id, Integer money);
-
     UserVO queryUserAndAddressById(Long userId);
 }
 ```
 
-然后，在UserServiceImpl中实现该方法：
+然后，在`UserServiceImpl`中实现该方法：
 
 ```Java
 @Override
-public UserVO queryUserAndAddressById(Long userId) {
-    // 1.查询用户
-    User user = getById(userId);
-    if (user == null) {
-        return null;
+public UserVO queryUserAddressById(Long id) {
+    // 1. 查询用户
+    User user = getById(id);
+    if (user == null || user.getStatus() == 2) {
+        throw new RuntimeException("用户状态异常!");
     }
-    // 2.查询收货地址
+
+    // 2. 查询地址 使用Db静态工具类 防止出现循环依赖(注入其他Service，如AddressService)
     List<Address> addresses = Db.lambdaQuery(Address.class)
-            .eq(Address::getUserId, userId)
-            .list();
-    // 3.处理vo
+        .eq(Address::getUserId, id).list();
+
+    // 3. 封装VO
     UserVO userVO = BeanUtil.copyProperties(user, UserVO.class);
-    userVO.setAddresses(BeanUtil.copyToList(addresses, AddressVO.class));
+    if (CollUtil.isNotEmpty(addresses)) {
+        userVO.setAddress(BeanUtil.copyToList(addresses, AddressVO.class));
+    }
     return userVO;
 }
 ```
 
 在查询地址时，我们采用了Db的静态方法，因此避免了注入AddressService，减少了循环依赖的风险。
 
-再来实现一个功能：
+#### 3.2.2.2 静态工具案例二
 
--  根据id批量查询用户，并查询出用户对应的所有地址
+**案例：根据id批量查询用户，并查询出用户对应的所有地址**
+
+`UserController`
+
+```java
+@ApiOperation("根据id批量查询用户接口")
+@GetMapping
+public List<UserVO> queryUserByIds(@ApiParam("用户id集合") @RequestParam("ids") List<Long> ids) {
+    /* // 不查地址，只查用户表
+        // 1. 查询用户
+        List<User> users = userService.listByIds(ids);// IService中mp帮我们写好的方法
+        // 2. 将PO集合拷贝到VO集合返回
+//        List<UserVO> userVOS = BeanUtil.copyToList(users, UserVO.class);
+        return BeanUtil.copyToList(users, UserVO.class);
+   */
+
+    // 根据id批量查询用户，并查询出用户对应的所有地址
+    return userService.queryUserAndAddressByIds(ids);
+}
+```
+
+`IUserService`
+
+```java
+List<UserVO> queryUserAndAddressByIds(List<Long> ids);
+```
+
+`IUserServiceImpl`
+
+```java
+/**
+ * 根据id批量查询用户，并查询出用户对应的所有地址
+ * @param ids
+ * @return
+ */
+@Override
+public List<UserVO> queryUserAndAddressByIds(List<Long> ids) {
+    // 1. 查询用户
+    List<User> users = listByIds(ids);
+    if (CollUtil.isEmpty(users)) {
+        // List<Object> objects = Collections.emptyList();
+        return Collections.emptyList(); // 返回空集合
+    }
+
+    // 2. 查询地址
+    // 2.1 获取用户id集合
+    List<Long> userIds = users.stream().map(User::getId).collect(Collectors.toList());
+    // 2.2 根据用户id查询地址
+    List<Address> addresses = Db.lambdaQuery(Address.class)
+        .in(Address::getUserId, userIds)
+        .list();
+    // 2.3 转换地址VO
+    List<AddressVO> addressVOList = BeanUtil.copyToList(addresses, AddressVO.class);
+    // 2.4 梳理地址集合，分类整理，相同用户的地址放在同一个集合中
+    // 键为用户id list为该用户的地址集合
+    Map<Long, List<AddressVO>> addressMap = new LinkedHashMap<>(0);
+    if (CollUtil.isNotEmpty(addressVOList)) { // 如果不为空
+        // 根据ID分组
+        addressMap = addressVOList.stream()
+            .collect(groupingBy(AddressVO::getUserId));
+    }
+
+    // 3. 转换VO返回
+    List<UserVO> list = new ArrayList<>(users.size());
+    for (User user : users) {
+        // 3.1 转换user的PO为VO
+        UserVO userVO = BeanUtil.copyProperties(user, UserVO.class);
+        list.add(userVO);
+        // 3.2 转换地址VO
+        userVO.setAddress(addressMap.get(user.getId()));
+    }
+    return list;
+}
+```
 
 ## 3.3.逻辑删除
 
-对于一些比较重要的数据，我们往往会采用逻辑删除的方案，即：
+**逻辑删除**就是基于代码逻辑模拟删除效果，但并不会真正删除数据。思路如下：
 
-- 在表中添加一个字段标记数据是否被删除
-- 当删除数据时把标记置为true
-- 查询时过滤掉标记为true的数据
+- 在表中**添加一个字段标记数据是否被删除**
+- 当**删除数据时**把标记置为1
+- **查询时**只查询标记为0的数据
+
+例如逻辑删除字段为deleted
+
+- 删除操作
+  ```sql
+  UPDATE user SET deleted = 1 WHERE id = 1 AND deleted = 0
+  ```
+
+- 查询操作
+  ```sql
+  SELECT * FROM user WHERE deleted = 0
+  ```
 
 一旦采用了逻辑删除，所有的查询和删除逻辑都要跟着变化，非常麻烦。
 
-为了解决这个问题，MybatisPlus就添加了对逻辑删除的支持。
+为了解决这个问题，**MybatisPlus就添加了对逻辑删除的支持**。
 
-注意，只有MybatisPlus生成的SQL语句才支持自动的逻辑删除，自定义SQL需要自己手动处理逻辑删除。
+**注意，只有MybatisPlus生成的SQL语句才支持自动的逻辑删除，自定义SQL需要自己手动处理逻辑删除。**
 
 例如，我们给`address`表添加一个逻辑删除字段：
 
@@ -1586,7 +1700,7 @@ alter table address add deleted bit default b'0' null comment '逻辑删除';
 
 ![img](./MybatisPlusImg/1731828032412-213.png)
 
-接下来，我们要在`application.yml`中配置逻辑删除字段：
+接下来，我们要**在`application.yml`中配置逻辑删除字段**：
 
 ```YAML
 mybatis-plus:
@@ -1597,66 +1711,100 @@ mybatis-plus:
       logic-not-delete-value: 0 # 逻辑未删除值(默认为 0)
 ```
 
-测试： 首先，我们执行一个删除操作：
+测试： 
 
 ```Java
 @Test
-void testDeleteByLogic() {
-    // 删除方法与以前没有区别
+void testLogicDelete() {
+    // 方法与普通删除一模一样，但是底层的SQL逻辑变了
+    // 删除
     addressService.removeById(59L);
+    // 查询
+    Address address = addressService.getById(59L);
+    System.out.println("address = " + address);
 }
 ```
 
 方法与普通删除一模一样，但是底层的SQL逻辑变了：
 
-![img](./MybatisPlusImg/1731828032412-214.png)
+```shell
+==>  Preparing: UPDATE address SET deleted=1 WHERE id=? AND deleted=0
+==> Parameters: 59(Long)
+<==    Updates: 1
+==>  Preparing: SELECT id,user_id,province,city,town,mobile,street,contact,is_default,notes,deleted FROM address WHERE id=? AND deleted=0
+==> Parameters: 60(Long)
+<==      Total: 1
 
-查询一下试试：
-
-```Java
-@Test
-void testQuery() {
-    List<Address> list = addressService.list();
-    list.forEach(System.out::println);
-}
+==>  Preparing: SELECT id,user_id,province,city,town,mobile,street,contact,is_default,notes,deleted FROM address WHERE id=? AND deleted=0
+==> Parameters: 59(Long)
+<==      Total: 0
+address = null
 ```
 
 会发现id为59的确实没有查询出来，而且SQL中也对逻辑删除字段做了判断：
 
 ![img](./MybatisPlusImg/1731828032412-215.png)
 
-综上， 开启了逻辑删除功能以后，我们就可以像普通删除一样做CRUD，基本不用考虑代码逻辑问题。还是非常方便的。
+综上， **开启了逻辑删除功能以后，我们就可以像普通删除一样做CRUD**，基本不用考虑代码逻辑问题。还是非常方便的。
 
-注意： 逻辑删除本身也有自己的问题，比如：
+**注意**： 逻辑删除本身也有自己的问题，比如：
 
 - 会导致数据库表垃圾数据越来越多，从而影响查询效率
 - SQL中全都需要对逻辑删除字段做判断，影响查询效率
 
 因此，我不太推荐采用逻辑删除功能，如果数据不能删除，可以采用把数据迁移到其它表的办法。
 
-## 3.3.通用枚举
+## 3.3.枚举处理器
+
+ <img src="./MybatisPlusImg/image-20241121214800413.png" alt="image-20241121214800413" style="zoom:67%;" />
 
 User类中有一个用户状态字段：
 
-![img](./MybatisPlusImg/1731828032412-216.png)
+```java
+/**
+ * 使用状态（1正常 2冻结）
+ */
+private Integer status;
+// private UserStatus status; // UserStatus为自定义的用户状态枚举类
+```
 
-像这种字段我们一般会定义一个枚举，做业务判断的时候就可以直接基于枚举做比较。但是我们数据库采用的是`int`类型，对应的PO也是`Integer`。因此业务操作时必须手动把`枚举`与`Integer`转换，非常麻烦。
+像这种字段我们一般会定义一个枚举`private UserStatus status`，做业务判断的时候就可以直接基于枚举做比较。但是我们数据库采用的是`int`类型，对应的PO也是`Integer`。因此业务操作时必须手动把枚举`UserStatus` 与`Integer`转换，非常麻烦。
 
 因此，MybatisPlus提供了一个处理枚举的类型转换器，可以帮我们把枚举类型与数据库类型自动转换。
+
+### 3.3.0 枚举处理器使用步骤
+
+1. 给枚举中的与数据库对应value值添加@EnumValue注解
+   ```java
+   NORMAL(1, "正常"),
+   FROZEN(2, "冻结"),
+   ;
+   // 枚举类的属性
+   @EnumValue // 标记枚举中的哪个字段的值作为数据库值 即1或2
+   private final int value;
+   // 标记JSON序列化时展示的字段
+   // 如果不加@JsonValue前端查到的数据则为"NORMAL"或"FROZEN"
+   @JsonValue // 我们返回给前端值时SpringMvc的jackson包来处理json 加上该注解，返回给前端该类时只返回该属性，即"正常"或"冻结"
+   private final String desc;
+   ```
+
+2. 在配置文件中配置统一的枚举处理器，实现类型转换
+   ```yaml
+   mybatis-plus:
+     configuration:
+       default-enum-type-handler: com.baomidou.mybatisplus.core.handlers.MybatisEnumTypeHandler # 配置枚举处理器
+   ```
 
 ### 3.3.1.定义枚举
 
 我们定义一个用户状态的枚举：
 
-![img](./MybatisPlusImg/1731828032412-217.png)
+ <img src="./MybatisPlusImg/1731828032412-217.png" alt="img" style="zoom:67%;" />
 
 代码如下：
 
 ```Java
-package com.itheima.mp.enums;
-
 import com.baomidou.mybatisplus.annotation.EnumValue;
-import lombok.Getter;
 
 @Getter
 public enum UserStatus {
@@ -1675,15 +1823,38 @@ public enum UserStatus {
 
 然后把`User`类中的`status`字段改为`UserStatus` 类型：
 
-![img](./MybatisPlusImg/1731828032412-218.png)
+```java
+/**
+ * 使用状态（1正常 2冻结）
+ */
+private UserStatus status;
+```
 
-要让`MybatisPlus`处理枚举与数据库类型自动转换，我们必须告诉`MybatisPlus`，枚举中的哪个字段的值作为数据库值。 `MybatisPlus`提供了`@EnumValue`注解来标记枚举属性：
+要让`MybatisPlus`处理枚举与数据库类型自动转换，我们**必须告诉`MybatisPlus`，枚举中的哪个字段的值作为数据库值**。 `MybatisPlus`提供了**`@EnumValue`注解来标记枚举属性**：
 
-![img](./MybatisPlusImg/1731828032412-219.png)
+```java
+@Getter
+public enum UserStatus {
+    NORMAL(1, "正常"),
+    FROZEN(2, "冻结"),
+    ;
+
+    @EnumValue // 标记枚举中的哪个字段的值作为数据库值
+    private final int value;
+    // 标记JSON序列化时展示的字段 即1或2
+    // 如果不加@JsonValue前端查到的数据则为"NORMAL"或"FROZEN"
+    @JsonValue // 我们返回给前端值时SpringMvc的jackson包来处理json 加上该注解，返回给前端该类时只返回该属性 即"正常"或"冻结"
+    private final String desc;
+    UserStatus(int value, String desc) {
+        this.value = value;
+        this.desc = desc;
+    }
+}
+```
 
 ### 3.3.2.配置枚举处理器
 
-在application.yaml文件中添加配置：
+在`application.yaml`文件中添加配置：
 
 ```YAML
 mybatis-plus:
@@ -1707,11 +1878,18 @@ void testService() {
 
 同时，为了使页面查询结果也是枚举格式，我们需要修改UserVO中的status属性：
 
-![img](./MybatisPlusImg/1731828032412-221.png)
+```java
+@ApiModelProperty("使用状态（1正常 2冻结）")
+//    private Integer status;
+private UserStatus status;
+```
 
 并且，在UserStatus枚举中通过`@JsonValue`注解标记JSON序列化时展示的字段：
 
-![img](./MybatisPlusImg/1731828032412-222.png)
+```java
+@JsonValue // 我们返回给前端值时SpringMvc的jackson包来处理json 加上该注解，返回给前端该类时只返回该属性，即"正常"或"冻结"
+private final String desc;
+```
 
 最后，在页面查询，结果如下：
 
@@ -1719,9 +1897,11 @@ void testService() {
 
 ## 3.4.JSON类型处理器
 
+ <img src="./MybatisPlusImg/image-20241121214643964.png" alt="image-20241121214643964" style="zoom:67%;" />
+
 数据库的user表中有一个`info`字段，是JSON类型：
 
-![img](./MybatisPlusImg/1731828032413-224.png)
+ ![img](./MybatisPlusImg/1731828032413-224.png)
 
 格式像这样：
 
@@ -1731,7 +1911,12 @@ void testService() {
 
 而目前`User`实体类中却是`String`类型：
 
-![img](./MybatisPlusImg/1731828032413-225.png)
+```java
+/**
+ * 详细信息
+ */
+private String info;
+```
 
 这样一来，我们要读取info中的属性时就非常不方便。如果要方便获取，info的类型最好是一个`Map`或者实体类。
 
@@ -1741,19 +1926,19 @@ void testService() {
 
 接下来，我们就来看看这个处理器该如何使用。
 
+**步骤图示：**
+
+![image-20241121220511800](./MybatisPlusImg/image-20241121220511800.png)
+
 ### 3.4.1.定义实体
 
 首先，我们定义一个单独实体类来与info字段的属性匹配：
 
-![img](./MybatisPlusImg/1731828032413-226.png)
+ <img src="./MybatisPlusImg/1731828032413-226.png" alt="img" style="zoom:67%;" />
 
 代码如下：
 
 ```Java
-package com.itheima.mp.domain.po;
-
-import lombok.Data;
-
 @Data
 public class UserInfo {
     private Integer age;
@@ -1764,9 +1949,20 @@ public class UserInfo {
 
 ### 3.4.2.使用类型处理器
 
-接下来，将User类的info字段修改为UserInfo类型，并声明类型处理器：
+接下来，将User类的info字段修改为UserInfo类型，并声明类型处理器`@TableField(typeHandler =  ?`：
 
-![img](./MybatisPlusImg/1731828032413-227.png)
+```java
+@Data
+@TableName(value = "tb_user", autoResultMap = true) // 因为该类内部有一个json处理器处理的字段，属于较复杂的，需要开启自动结果映射，autoResultMap = true
+public class User {
+    // 注册手机号
+    private String phone;
+    // 详细信息 数据库中是json类型
+    @TableField(typeHandler = JacksonTypeHandler.class) // 开启json类型处理器
+    private UserInfo info;
+    ...
+}
+```
 
 测试可以发现，所有数据都正确封装到UserInfo当中了：
 
@@ -1774,7 +1970,11 @@ public class UserInfo {
 
 同时，为了让页面返回的结果也以对象格式返回，我们要修改UserVO中的info字段：
 
-![img](./MybatisPlusImg/1731828032413-229.png)
+```java
+@ApiModelProperty("详细信息")
+//    private String info;
+private UserInfo info;
+```
 
 此时，在页面查询结果如下：
 

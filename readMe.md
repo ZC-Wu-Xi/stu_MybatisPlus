@@ -24,32 +24,32 @@
 
 将使用mybatis操作单表的基础操作改为mybaitsplus实现
 
-## 1.1. 环境准备
+## 1.1 环境准备
 
 复制课前资料提供好的一个项目到你的工作空间（不要包含空格和特殊字符）：
 
-![img](./readMeImg/1731827938470-6.png)
+![img](./MybatisPlusImg/1731827938470-6.png)
 
 然后用你的IDEA工具打开，项目结构如下：
 
-![img](./readMeImg/1731827938469-1.png)
+![img](./MybatisPlusImg/1731827938469-1.png)
 
 注意配置一下项目的JDK版本为JDK11。首先点击项目结构设置：
 
-![img](./readMeImg/1731827938469-2.png)
+![img](./MybatisPlusImg/1731827938469-2.png)
 
 在弹窗中配置JDK：
 
-![img](./readMeImg/1731827938470-3.png)
+![img](./MybatisPlusImg/1731827938470-3.png)
 
 接下来，要导入两张表，在课前资料中已经提供了SQL文件：
 
-![img](./readMeImg/1731827938470-4.png)
+![img](./MybatisPlusImg/1731827938470-4.png)
 
 对应的数据库表结构如下：
 
-![img](./readMeImg/1731827938470-5.png)
-![image-20241117163504204](./readMeImg/image-20241117163504204.png)
+![img](./MybatisPlusImg/1731827938470-5.png)
+![image-20241117163504204](./MybatisPlusImg/image-20241117163504204.png)
 
 最后，在`application.yaml`中修改jdbc参数为你自己的数据库参数：
 
@@ -69,7 +69,7 @@ mybatis:
   mapper-locations: classpath*:mapper/*.xml
 ```
 
-## 1.2. 快速开始
+## 1.2 快速开始
 
 MyBatisPlus官方提供了starter，其中集成了Mybatis和MybatisPlus的所有功能，并且实现了自动装配效果。
 
@@ -111,7 +111,7 @@ MyBatisPlus官方提供了starter，其中集成了Mybatis和MybatisPlus的所�
 
 springboot3 记得用mybatis-plus-spring-boot3-starter
 
-## 1.2.快速开始
+## 1.2 快速开始
 
 MyBatisPlus使用的基本流程是什么？
 
@@ -125,7 +125,7 @@ MyBatisPlus使用的基本流程是什么？
 - 引入MybatisPlus依赖
 - 定义Mapper
 
-### **1.2.1引入依赖**
+### 1.2.1 引入依赖
 
 MybatisPlus提供了starter，实现了自动Mybatis以及MybatisPlus的自动装配功能，坐标如下：
 
@@ -164,15 +164,15 @@ MybatisPlus提供了starter，实现了自动Mybatis以及MybatisPlus的自动�
 </dependencies>
 ```
 
-### 1.2.2.定义Mapper
+### 1.2.2 定义Mapper
 
 为了简化单表CRUD，MybatisPlus提供了一个基础的`BaseMapper`接口，其中已经实现了单表的CRUD：
 
-![img](./readMeImg/1731828032411-184.png)
+![img](./MybatisPlusImg/1731828032411-184.png)
 
 因此我们自定义的Mapper只要实现了这个`BaseMapper`，就无需自己实现单表CRUD了。 修改mp-demo中的`com.itheima.mp.mapper`包下的`UserMapper`接口，让其继承`BaseMapper`：
 
-![img](./readMeImg/1731828032411-185.png)
+![img](./MybatisPlusImg/1731828032411-185.png)
 
 代码如下：
 
@@ -186,7 +186,7 @@ public interface UserMapper extends BaseMapper<User> {
 }
 ```
 
-### 1.2.3.测试
+### 1.2.3 测试
 
 新建一个测试类，编写几个单元测试，测试基本的单表CRUD功能：
 
@@ -261,7 +261,7 @@ user = User(id=5, username=Lucy, password=123, phone=18688990011, info={"age": 2
 
 只需要继承BaseMapper就能省去所有的单表CRUD，是不是非常简单！
 
-## 1.3. 常见注解
+## 1.3 常见注解
 
 | 常见注解      | 功能                           |
 | ------------- | ------------------------------ |
@@ -269,7 +269,7 @@ user = User(id=5, username=Lucy, password=123, phone=18688990011, info={"age": 2
 | `@TableId`    | 用来指定表中的**主键字段**信息 |
 | `@TableFieId` | 用来指定表中的**普通字段**信息 |
 
-![image-20241117163111855](./readMeImg/image-20241117163111855.png)
+![image-20241117163111855](./MybatisPlusImg/image-20241117163111855.png)
 
 在刚刚的入门案例中，我们仅仅引入了依赖，继承了BaseMapper就能使用MybatisPlus，非常简单。但是问题来了： **MybatisPlus如何知道我们要查询的是哪张表？表中有哪些字段呢？**
 
@@ -277,7 +277,7 @@ MyBatisPlus通过扫描实体类，并基于反射获取实体类信息作为数
 
 大家回忆一下，UserMapper在继承BaseMapper的时候指定了一个泛型：
 
-![img](./readMeImg/1731828032411-186.png)
+![img](./MybatisPlusImg/1731828032411-186.png)
 
 泛型中的User就是与数据库对应的PO.
 
@@ -287,11 +287,11 @@ MybatisPlus就是**根据PO实体的信息来推断出表的信息，从而生�
 - MybatisPlus会把PO实体的所有**变量名驼峰转下划线作为表的字段名**，并根据**变量类型推断字段类型**
 - MybatisPlus会把名为**id的字段作为主键**
 
-![image-20241117161750759](./readMeImg/image-20241117161750759.png)
+![image-20241117161750759](./MybatisPlusImg/image-20241117161750759.png)
 
 **但很多情况下，默认的实现与实际场景不符，因此MybatisPlus提供了一些注解便于我们声明表信息。**
 
-### 1.3.1. @TableName
+### 1.3.1 @TableName
 
 说明：
 
@@ -319,7 +319,7 @@ TableName注解除了指定表名以外，还可以指定很多其它属性：
 | autoResultMap    | boolean  | 否       | false  | 是否自动构建 resultMap 并使用（如果设置 resultMap 则不会进行 resultMap 的自动构建与注入） |
 | excludeProperty  | String[] | 否       | {}     | 需要排除的属性名 @since 3.3.1                                |
 
-### 1.3.2.@TableId
+### 1.3.2 @TableId
 
 说明：
 
@@ -363,7 +363,7 @@ public class User {
 - `INPUT`：手动生成id
 - `ASSIGN_ID`：雪花算法生成`Long`类型的全局唯一id，这是默认的ID策略
 
-### 1.3.3.@TableField
+### 1.3.3 @TableField
 
 说明：
 
@@ -409,7 +409,7 @@ public class User {
 | typeHandler      | TypeHander | 否   |                       | 类型处理器 (该默认值不代表会按照该值生效)                    |
 | numericScale     | String     | 否   | ""                    | 指定小数点后保留的位数                                       |
 
-## 1.4.常见配置
+## 1.4 常见配置
 
 MybatisPlus也支持基于yaml文件的自定义配置，详见官方文档：
 
@@ -456,7 +456,7 @@ mybatis-plus:
 
 例如，我们新建一个`UserMapper.xml`文件：
 
-![img](./readMeImg/1731828032411-187.png)
+![img](./MybatisPlusImg/1731828032411-187.png)
 
 然后在其中定义一个方法：
 
@@ -481,11 +481,13 @@ void testQuery() {
 }
 ```
 
-# 2.核心功能
+# 2. 核心功能
+
+测试地址：http://localhost:8080/doc.html
 
 刚才的案例中都是以id为条件的简单CRUD，一些复杂条件的SQL语句就要用到一些更高级的功能了。
 
-## 2.1.条件构造器
+## 2.1 条件构造器
 
 **条件构造器的用法：**
 
@@ -495,27 +497,27 @@ void testQuery() {
 
 除了新增以外，修改、删除、查询的SQL语句都需要指定where条件。因此BaseMapper中提供的相关方法除了以`id`作为`where`条件以外，还支持更加复杂的`where`条件。
 
-![img](./readMeImg/1731828032411-188.png)
+![img](./MybatisPlusImg/1731828032411-188.png)
 
 参数中的`Wrapper`就是**条件构造的抽象类**，其下有很多默认实现，继承关系如图：
 
-![img](./readMeImg/1731828032411-189.png)
+![img](./MybatisPlusImg/1731828032411-189.png)
 
 `Wrapper`的子类`AbstractWrapper`**提供了where中包含的所有条件构造**方法：
 
-![img](./readMeImg/1731828032411-190.png)
+![img](./MybatisPlusImg/1731828032411-190.png)
 
 而`QueryWrapper`在AbstractWrapper的基础上拓展了一个select方法，**允许指定查询字段**：
 
-![img](./readMeImg/1731828032411-191.png)
+![img](./MybatisPlusImg/1731828032411-191.png)
 
 而`UpdateWrappe`在AbstractWrapper的基础上拓展了一个set方法，**允许指定SQL中的SET部分**：
 
-![img](./readMeImg/1731828032411-192.png)
+![img](./MybatisPlusImg/1731828032411-192.png)
 
 接下来，我们就来看看如何利用`Wrapper`实现复杂查询。
 
-### 2.1.1.QueryWrapper
+### 2.1.1 QueryWrapper
 
 无论是修改、删除、查询，都可以使用QueryWrapper来**构建查询条件**。接下来看一些例子： 
 
@@ -553,7 +555,7 @@ void testUpdateByQueryWrapper() {
 }
 ```
 
-### 2.1.2.UpdateWrapper
+### 2.1.2 UpdateWrapper
 
 基于BaseMapper中的update方法更新时只能直接赋值，对于一些复杂的需求就难以实现。 
 
@@ -581,7 +583,7 @@ void testUpdateWrapper() {
 }
 ```
 
-### 2.1.3.LambdaQueryWrapper
+### 2.1.3 LambdaQueryWrapper
 
 无论是QueryWrapper还是UpdateWrapper在构造条件的时候都需要写死字段名称，会出现字符串`魔法值`。这在编程规范中显然是不推荐的。 那怎么样才能不写字段名，又能知道字段名呢？
 
@@ -612,17 +614,17 @@ void testLambdaQueryWrapper() {
 }
 ```
 
-## 2.2.自定义SQL
+## 2.2 自定义SQL
 
 在演示UpdateWrapper的案例中，我们在代码中编写了更新的SQL语句：
 
-![img](./readMeImg/1731828032411-193.png)
+![img](./MybatisPlusImg/1731828032411-193.png)
 
 **这种写法在某些企业也是不允许的**，因为SQL语句最好都维护在持久层，而不是业务层。就当前案例来说，由于条件是in语句，只能将SQL写在Mapper.xml文件，利用foreach来生成动态SQL。 这实在是太麻烦了。假如查询条件更复杂，动态SQL的编写也会更加复杂。
 
 所以，**MybatisPlus提供了自定义SQL功能，可以让我们利用Wrapper生成查询条件，再结合Mapper.xml编写SQL**
 
-### 2.2.1.基本用法
+### 2.2.1 基本用法
 
 更新id为`1,2,4`的用户的余额，扣200，对应的SQL应该是：
 
@@ -633,7 +635,6 @@ UPDATE user SET balance = balance - 200 WHERE id in (1, 2, 4)
 步骤：
 
 1. 基于Wrapper构建where条件
-
    ```java
    List<Long> ids = List.of(1L, 2L, 4L);
    int amount = 200;
@@ -655,7 +656,6 @@ UPDATE user SET balance = balance - 200 WHERE id in (1, 2, 4)
    ```
 
 3. 自定义SQL，并使用Wrapper条件
-
    ```xml
    <update id="updateBalanceByIds">
        UPDATE tb_user SET balance = balance - #{amount} ${ew.customSqlSegment}
@@ -664,7 +664,7 @@ UPDATE user SET balance = balance - 200 WHERE id in (1, 2, 4)
 
 这样就省去了编写复杂查询条件的烦恼了。
 
-### 2.2.2.多表关联
+### 2.2.2 多表关联
 
 理论上来讲MyBatisPlus是不支持多表查询的，不过我们可以利用Wrapper中自定义条件结合自定义SQL来实现多表查询的效果。 例如，我们要查询出所有收货地址在北京的并且用户id在1、2、4之中的用户 要是自己基于mybatis实现SQL，大概是这样的：
 
@@ -717,7 +717,7 @@ List<User> queryUserByWrapper(@Param("ew")QueryWrapper<User> wrapper);
 </select>
 ```
 
-## 2.3.Service接口
+## 2.3 Service接口
 
 MybatisPlus不仅提供了BaseMapper，还提供了通用的Service接口及默认实现，封装了一些常用的service模板方法。 通用接口为`IService`，默认实现为`ServiceImpl`，其中封装的方法可以分为以下几类：
 
@@ -729,15 +729,15 @@ MybatisPlus不仅提供了BaseMapper，还提供了通用的Service接口及默�
 - `count`：计数
 - `page`：分页查询
 
-### 2.3.1.CRUD
+### 2.3.1 CRUD
 
 我们先俩看下基本的CRUD接口。 
 
-![image-20241117184050493](./readMeImg/image-20241117184050493.png)
+![image-20241117184050493](./MybatisPlusImg/image-20241117184050493.png)
 
 新增：
 
-![img](./readMeImg/1731828032411-194.png)
+![img](./MybatisPlusImg/1731828032411-194.png)
 
 - `save`是新增单个元素
 - `saveBatch`是批量新增
@@ -746,7 +746,7 @@ MybatisPlus不仅提供了BaseMapper，还提供了通用的Service接口及默�
 
 删除：
 
-![img](./readMeImg/1731828032412-195.png)
+![img](./MybatisPlusImg/1731828032412-195.png)
 
 - `removeById`：根据id删除
 - `removeByIds`：根据id批量删除
@@ -756,7 +756,7 @@ MybatisPlus不仅提供了BaseMapper，还提供了通用的Service接口及默�
 
 修改：
 
-![img](./readMeImg/1731828032412-196.png)
+![img](./MybatisPlusImg/1731828032412-196.png)
 
 - `updateById`：根据id修改
 - `update(Wrapper<T>)`：根据`UpdateWrapper`修改，`Wrapper`中包含`set`和`where`部分
@@ -765,7 +765,7 @@ MybatisPlus不仅提供了BaseMapper，还提供了通用的Service接口及默�
 
 Get：
 
-![img](./readMeImg/1731828032412-197.png)
+![img](./MybatisPlusImg/1731828032412-197.png)
 
 - `getById`：根据id查询1条数据
 - `getOne(Wrapper<T>)`：根据`Wrapper`查询1条数据
@@ -773,7 +773,7 @@ Get：
 
 List：
 
-![img](./readMeImg/1731828032412-198.png)
+![img](./MybatisPlusImg/1731828032412-198.png)
 
 - `listByIds`：根据id批量查询
 - `list(Wrapper<T>)`：根据Wrapper条件查询多条数据
@@ -781,27 +781,29 @@ List：
 
 Count：
 
-![img](./readMeImg/1731828032412-199.png)
+![img](./MybatisPlusImg/1731828032412-199.png)
 
 - `count()`：统计所有数量
 - `count(Wrapper<T>)`：统计符合`Wrapper`条件的数据数量
 
 getBaseMapper： 当我们在service中要调用Mapper中自定义SQL时，就必须获取service对应的Mapper，就可以通过这个方法：
 
-![img](./readMeImg/1731828032412-200.png)
+![img](./MybatisPlusImg/1731828032412-200.png)
 
-### 2.3.2.基本用法
+### 2.3.2 基本用法
+
+![image-20241118165627777](./MybatisPlusImg/image-20241118165627777.png)
 
 由于`Service`中经常需要定义与业务有关的自定义方法，因此我们不能直接使用`IService`，而是自定义`Service`接口，然后继承`IService`以拓展方法。同时，让自定义的`Service实现类`继承`ServiceImpl`，这样就不用自己实现`IService`中的接口了。
+
+1. **自定义`Service`接口继承`IService`接口**
+2. **自定义的`Service实现类`，实现自定义接口并继承`ServiceImpl`类**
+
+即：
 
 首先，定义`IUserService`，继承`IService`：
 
 ```Java
-package com.itheima.mp.service;
-
-import com.baomidou.mybatisplus.extension.service.IService;
-import com.itheima.mp.domain.po.User;
-
 public interface IUserService extends IService<User> {
     // 拓展自定义方法
 }
@@ -810,37 +812,31 @@ public interface IUserService extends IService<User> {
 然后，编写`UserServiceImpl`类，继承`ServiceImpl`，实现`UserService`：
 
 ```Java
-package com.itheima.mp.service.impl;
-
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.itheima.mp.domain.po.User;
-import com.itheima.mp.domain.po.service.IUserService;
-import com.itheima.mp.mapper.UserMapper;
-import org.springframework.stereotype.Service;
-
 @Service
-public class UserServiceImpl extends ServiceImpl<UserMapper, User>
-                                                                                                        implements IUserService {
+public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IUserService {
 }
 ```
 
 项目结构如下：
 
-![img](./readMeImg/1731828032412-201.png)
+![img](./MybatisPlusImg/1731828032412-201.png)
 
-接下来，我们快速实现下面4个接口：
+### 2.3.3 案例Rest风格实现
 
-| 编号 | 接口           | 请求方式 | 请求路径    | 请求参数     | 返回值     |
-| :--- | :------------- | :------- | :---------- | :----------- | :--------- |
-| 1    | 新增用户       | POST     | /users      | 用户表单实体 | 无         |
-| 2    | 删除用户       | DELETE   | /users/{id} | 用户id       | 无         |
-| 3    | 根据id查询用户 | GET      | /users/{id} | 用户id       | 用户VO     |
-| 4    | 根据id批量查询 | GET      | /users      | 用户id集合   | 用户VO集合 |
+我们快速实现以下5个接口：
+
+| 编号                                     | 接口           | 请求方式 | 请求路径                       | 请求参数             | 返回值     |
+| :--------------------------------------- | :------------- | :------- | :----------------------------- | :------------------- | :--------- |
+| 1                                        | 新增用户       | POST     | `/users`                       | 用户表单实体         | 无         |
+| 2                                        | 删除用户       | DELETE   | `/users/{id}`                  | 用户id               | 无         |
+| 3                                        | 根据id查询用户 | GET      | `/users/{id}`                  | 用户id               | 用户VO     |
+| 4                                        | 根据id批量查询 | GET      | `/users`                       | 用户id集合           | 用户VO集合 |
+| 5<br />(有业务逻辑，需自定义service方法) | 根据id扣减余额 | PUT      | `/user/{id}/dedcution/{money}` | 用户id<br />扣减金额 | 无         |
 
 首先，我们在项目中引入几个依赖：
 
 ```XML
-<!--swagger-->
+<!--swagger 主要用于RESTful API的文档生成和测试。-->
 <dependency>
     <groupId>com.github.xiaoymin</groupId>
     <artifactId>knife4j-openapi2-spring-boot-starter</artifactId>
@@ -878,7 +874,7 @@ knife4j:
 - UserFormDTO：代表新增时的用户表单
 - UserVO：代表查询的返回结果
 
-首先是UserFormDTO：
+首先是**UserFormDTO：**
 
 ```Java
 package com.itheima.mp.domain.dto;
@@ -913,7 +909,7 @@ public class UserFormDTO {
 }
 ```
 
-然后是UserVO：
+然后是**UserVO：**
 
 ```Java
 package com.itheima.mp.domain.vo;
@@ -943,61 +939,56 @@ public class UserVO {
 }
 ```
 
-最后，按照Restful风格编写Controller接口方法：
+最后，按照Restful风格编写**Controller**接口方法：
 
 ```Java
-package com.itheima.mp.controller;
-
-import cn.hutool.core.bean.BeanUtil;
-import com.itheima.mp.domain.dto.UserFormDTO;
-import com.itheima.mp.domain.po.User;
-import com.itheima.mp.domain.vo.UserVO;
-import com.itheima.mp.service.IUserService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-
-@Api(tags = "用户管理接口")
-@RequiredArgsConstructor
+@Api("用户管理接口")
+@RequestMapping("/users")
 @RestController
-@RequestMapping("users")
+@RequiredArgsConstructor // lombok必备参数的构造函数，该构造函数包含所有被 final 修饰的字段，以及所有被 @NonNull 注解修饰的字段
 public class UserController {
+//    @Autowired // 不推荐使用@Autowired注入，推荐使用构造方法注入
+    private final IUserService userService; // 建议使用构造函数注入，可以使用final修饰保证不可变性
 
-    private final IUserService userService;
+    /*
+    // @RequiredArgsConstructor注解生成的构造函数
+    public UserController(IUserService userService) {
+        this.userService = userService;
+    }
+    */
 
+    @ApiOperation("新增用户接口")
     @PostMapping
-    @ApiOperation("新增用户")
-    public void saveUser(@RequestBody UserFormDTO userFormDTO){
-        // 1.转换DTO为PO
+    public void saveUser(@RequestBody UserFormDTO userFormDTO) {
+        // 1. 把DTO拷贝到PO
         User user = BeanUtil.copyProperties(userFormDTO, User.class);
-        // 2.新增
-        userService.save(user);
+        // 2. 新增
+        userService.save(user); // IService中mp帮我们写好的方法
     }
 
-    @DeleteMapping("/{id}")
-    @ApiOperation("删除用户")
-    public void removeUserById(@PathVariable("id") Long userId){
-        userService.removeById(userId);
+    @ApiOperation("删除用户接口")
+    @DeleteMapping("{id}")
+    public void deleteUser(@ApiParam("用户id") @PathVariable("id") Long id) {
+        // 删除
+        userService.removeById(id); // IService中mp帮我们写好的方法
     }
 
-    @GetMapping("/{id}")
-    @ApiOperation("根据id查询用户")
-    public UserVO queryUserById(@PathVariable("id") Long userId){
-        // 1.查询用户
-        User user = userService.getById(userId);
-        // 2.处理vo
+    @ApiOperation("根据id查询用户接口")
+    @GetMapping("{id}")
+    public UserVO queryUserById(@ApiParam("用户id") @PathVariable("id") Long id) {
+        // 1. 查询用户
+        User user = userService.getById(id);// IService中mp帮我们写好的方法
+        // 2. 将PO拷贝到VO返回
         return BeanUtil.copyProperties(user, UserVO.class);
     }
 
+    @ApiOperation("根据id批量查询用户接口")
     @GetMapping
-    @ApiOperation("根据id集合查询用户")
-    public List<UserVO> queryUserByIds(@RequestParam("ids") List<Long> ids){
-        // 1.查询用户
-        List<User> users = userService.listByIds(ids);
-        // 2.处理vo
+    public List<UserVO> queryUserByIds(@ApiParam("用户id集合") @RequestParam("ids") List<Long> ids) {
+        // 1. 查询用户
+        List<User> users = userService.listByIds(ids);// IService中mp帮我们写好的方法
+        // 2. 将PO集合拷贝到VO集合返回
+//        List<UserVO> userVOS = BeanUtil.copyToList(users, UserVO.class);
         return BeanUtil.copyToList(users, UserVO.class);
     }
 }
@@ -1005,9 +996,13 @@ public class UserController {
 
 可以看到上述接口都直接在controller即可实现，无需编写任何service代码，非常方便。
 
-不过，一些带有业务逻辑的接口则需要在service中自定义实现了。例如下面的需求：
+---
 
-- 根据id扣减用户余额
+不过，**一些带有业务逻辑的接口则需要在service中自定义实现**了。
+
+例如下面的需求：
+
+- **根据id扣减用户余额**
 
 这看起来是个简单修改功能，只要修改用户余额即可。但这个业务包含一些业务逻辑处理：
 
@@ -1022,7 +1017,7 @@ public class UserController {
 @PutMapping("{id}/deduction/{money}")
 @ApiOperation("扣减用户余额")
 public void deductBalance(@PathVariable("id") Long id, @PathVariable("money")Integer money){
-    userService.deductBalance(id, money);
+	userService.deductBalance(id, money);// 有业务逻辑 我们自定义的service方法
 }
 ```
 
@@ -1042,30 +1037,22 @@ public interface IUserService extends IService<User> {
 最后是UserServiceImpl实现类：
 
 ```Java
-package com.itheima.mp.service.impl;
-
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.itheima.mp.domain.po.User;
-import com.itheima.mp.mapper.UserMapper;
-import com.itheima.mp.service.IUserService;
-import org.springframework.stereotype.Service;
-
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IUserService {
-    @Override
+       @Override
     public void deductBalance(Long id, Integer money) {
-        // 1.查询用户
+        // 1. 查询用户
         User user = getById(id);
-        // 2.判断用户状态
-        if (user == null || user.getStatus() == 2) {
-            throw new RuntimeException("用户状态异常");
+        // 2. 校验用户状态  1:正常 2:冻结
+        if (user == null || user.getStatus().equals("2")) {
+            throw new RuntimeException("无该用户或用户状态异常！");
         }
-        // 3.判断用户余额
+        // 3. 校验余额是否充足
         if (user.getBalance() < money) {
-            throw new RuntimeException("用户余额不足");
+            throw new RuntimeException("用户余额不足！");
         }
-        // 4.扣减余额
-        baseMapper.deductMoneyById(id, money);
+        // 4. 扣减金额 update tb_user set balance = balance = ?
+        baseMapper.deductBalance(id, money); // 自定义的mapper
     }
 }
 ```
@@ -1077,28 +1064,48 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 void deductMoneyById(@Param("id") Long id, @Param("money") Integer money);
 ```
 
-### 2.3.3.Lambda
+### 2.3.4 Lambda查询
 
-IService中还提供了Lambda功能来简化我们的复杂查询及更新功能。我们通过两个案例来学习一下。
+IService中还提供了**Lambda功能来简化我们的复杂查询及更新**功能。我们通过两个案例来学习一下。
 
-案例一：实现一个根据复杂条件查询用户的接口，查询条件如下：
+#### 2.3.4.1 案例一：实现一个根据复杂条件查询用户的接口
+
+查询条件如下：
 
 - name：用户名关键字，可以为空
 - status：用户状态，可以为空
 - minBalance：最小余额，可以为空
 - maxBalance：最大余额，可以为空
 
-可以理解成一个用户的后台管理界面，管理员可以自己选择条件来筛选用户，因此上述条件不一定存在，需要做判断。
+可以理解成一个用户的后台管理界面，**管理员可以自己选择条件来筛选用户，因此上述条件不一定存在，需要做判断。**
+
+mybatis时的xml:
+
+```xml
+<select id="queryUsers" resultType="com.itheima.mp.domain.po.User">
+    SELECT *
+    FROM tb_user
+    <where>
+        <if test="name != null">
+            AND username LIKE #{name}
+        </if>
+        <if test="status != null">
+            AND `status` = #{status}
+        </if>
+        <if test="minBalance != null and maxBalance != null">
+            AND balance BETWEEN #{minBalance} AND #{maxBalance}
+        </if>
+    </where>
+</select>
+```
 
 我们首先需要定义一个查询条件实体，UserQuery实体：
 
 ```Java
 package com.itheima.mp.domain.query;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-
 @Data
 @ApiModel(description = "用户查询条件实体")
 public class UserQuery {
@@ -1113,7 +1120,7 @@ public class UserQuery {
 }
 ```
 
-接下来我们在UserController中定义一个controller方法：
+接下来我们在UserController中定义一个controller方法(不使用IService.lambda方法时)：
 
 ```Java
 @GetMapping("/list")
@@ -1138,9 +1145,9 @@ public List<UserVO> queryUsers(UserQuery query){
 
 在组织查询条件的时候，我们加入了 `username != null` 这样的参数，意思就是当条件成立时才会添加这个查询条件，类似Mybatis的mapper.xml文件中的`<if>`标签。这样就实现了动态查询条件效果了。
 
-不过，上述条件构建的代码太麻烦了。 因此Service中对`LambdaQueryWrapper`和`LambdaUpdateWrapper`的用法进一步做了简化。我们无需自己通过`new`的方式来创建`Wrapper`，而是直接调用`lambdaQuery`和`lambdaUpdate`方法：
+**不过，上述条件构建的代码太麻烦了**。 因此Service中对`LambdaQueryWrapper`和`LambdaUpdateWrapper`的用法进一步做了简化。我们无需自己通过`new`的方式来创建`Wrapper`，而是**直接调用`lambdaQuery`和`lambdaUpdate`方法：**
 
-基于Lambda查询：
+**基于Lambda查询：**
 
 ```Java
 @GetMapping("/list")
@@ -1163,21 +1170,23 @@ public List<UserVO> queryUsers(UserQuery query){
 }
 ```
 
+> 只传一个minBalance时：
+>
+> `SELECT id,username,password,phone,info,status,balance,create_time,update_time FROM tb_user WHERE (balance > ?)`
+
 可以发现lambdaQuery方法中除了可以构建条件，还需要在链式编程的最后添加一个`list()`，这是在告诉MP我们的调用结果需要是一个list集合。这里不仅可以用`list()`，可选的方法有：
 
 - `.one()`：最多1个结果
 - `.list()`：返回集合结果
 - `.count()`：返回计数结果
 
-MybatisPlus会根据链式编程的最后一个方法来判断最终的返回结果。
+MybatisPlus会根据链式编程的最后一个方法来判断最终的返回结果。与lambdaQuery方法类似，IService中的lambdaUpdate方法可以非常方便的实现复杂更新业务。
 
-与lambdaQuery方法类似，IService中的lambdaUpdate方法可以非常方便的实现复杂更新业务。
+**例如下面的需求：**
 
-例如下面的需求：
+#### 2.3.4.2 案例二
 
-> 需求：改造根据id修改用户余额的接口，要求如下
->
-> - 如果扣减后余额为0，则将用户status修改为冻结状态（2）
+根据id修改用户余额的接口，**如果扣减后余额为0，则将用户status修改为冻结状态（2）**
 
 也就是说我们在扣减用户余额时，需要对用户剩余余额做出判断，如果发现剩余余额为0，则应该将status修改为2，这就是说update语句的set部分是动态的。
 
@@ -1187,30 +1196,59 @@ MybatisPlus会根据链式编程的最后一个方法来判断最终的返回结
 @Override
 @Transactional
 public void deductBalance(Long id, Integer money) {
-    // 1.查询用户
+    // 1. 查询用户
     User user = getById(id);
-    // 2.校验用户状态
-    if (user == null || user.getStatus() == 2) {
-        throw new RuntimeException("用户状态异常！");
+    // 2. 校验用户状态  1:正常 2:冻结
+    if (user == null || user.getStatus().equals("2")) {
+        throw new RuntimeException("无该用户或用户状态异常！");
     }
-    // 3.校验余额是否充足
+    // 3. 校验余额是否充足
     if (user.getBalance() < money) {
         throw new RuntimeException("用户余额不足！");
     }
-    // 4.扣减余额 update tb_user set balance = balance - ?
-    int remainBalance = user.getBalance() - money;
+    // 4. 扣减余额，且当扣减后余额为0时修改用户状态为2:冻结，
+    int remainBalance = user.getBalance() - money; // 扣减后的余额
     lambdaUpdate()
-            .set(User::getBalance, remainBalance) // 更新余额
-            .set(remainBalance == 0, User::getStatus, 2) // 动态判断，是否更新status
-            .eq(User::getId, id)
-            .eq(User::getBalance, user.getBalance()) // 乐观锁
-            .update();
+        .set(User::getBalance, remainBalance)
+        .set(remainBalance == 0, User::getStatus, 2) // 动态判断，是否更新status
+        .eq(User::getId, id)
+        .eq(User::getBalance, user.getBalance()) // 乐观锁 用户余额=刚才查到的余额
+        .update();
 }
 ```
 
-### 2.3.4.批量新增
+### 2.3.5 批量新增
 
-IService中的批量新增功能使用起来非常方便，但有一点注意事项，我们先来测试一下。 首先我们测试逐条插入数据：
+结论：配置文件中修改`&rewriteBatchedStatements=true`，批处理性能会更好
+
+```yaml
+spring:
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/mp?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai&rewriteBatchedStatements=true
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: MySQL123
+```
+
+`rewriteBatchedStatements`默认为false
+
+**批量插入10万条用户数据，并作出对比：**
+
+- IService普通for循环插入save(一次插一个 插100000次)，较慢
+- IService的批量插入saveBatch(一次插1000个插100次)，较快
+- 开启`rewriteBatchedStatements=true`参数saveBatch(一次插1000个插100次)，最快
+
+**批处理方案结论：**
+
+- 普通for循环逐条插入速度极差，不推荐
+- MP的批量新增，基于预编译的批处理，性能不错
+- 配置jdbc参数，开`rewriteBatchedStatements`，性能最好
+
+**测试过程：**
+
+IService中的批量新增功能使用起来非常方便，但有一点注意事项，我们先来测试一下。 
+
+首先我们**测试逐条插入数据**：
 
 ```Java
 @Test
@@ -1238,11 +1276,13 @@ private User buildUser(int i) {
 
 执行结果如下：
 
-![img](./readMeImg/1731828032412-202.png)
+![img](./MybatisPlusImg/1731828032412-202.png)
 
-可以看到速度非常慢。
+可以看到**速度非常慢。**
 
-然后再试试MybatisPlus的批处理：
+然后**再试试MybatisPlus的批处理**：
+
+一次插入1000条
 
 ```Java
 @Test
@@ -1265,9 +1305,9 @@ void testSaveBatch() {
 
 执行最终耗时如下：
 
-![img](./readMeImg/1731828032412-203.png)
+![img](./MybatisPlusImg/1731828032412-203.png)
 
-可以看到使用了批处理以后，比逐条新增效率提高了10倍左右，性能还是不错的。
+可以看到使用了批处理以后，比逐条新增效率提高了10倍左右，**性能还是不错的。**
 
 不过，我们简单查看一下`MybatisPlus`源码：
 
@@ -1306,7 +1346,7 @@ Parameters: user_2, 123, 18688190002, "", 2000, 2023-07-01, 2023-07-01
 Parameters: user_3, 123, 18688190003, "", 2000, 2023-07-01, 2023-07-01
 ```
 
-而如果想要得到最佳性能，最好是将多条SQL合并为一条，像这样：
+**而如果想要得到最佳性能，最好是将多条SQL合并为一条，像这样：**
 
 ```SQL
 INSERT INTO user ( username, password, phone, info, balance, create_time, update_time )
@@ -1317,15 +1357,15 @@ VALUES
 (user_4, 123, 18688190004, "", 2000, 2023-07-01, 2023-07-01);
 ```
 
-该怎么做呢？
+**该怎么做呢？**
 
-MySQL的客户端连接参数中有这样的一个参数：`rewriteBatchedStatements`。顾名思义，就是重写批处理的`statement`语句。参考文档：
+MySQL的客户端连接参数中有这样的一个**参数：`rewriteBatchedStatements`**。顾名思义，就是重写批处理的`statement`语句。参考文档：
 
 https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-connp-props-performance-extensions.html#cj-conn-prop_rewriteBatchedStatements
 
-这个参数的默认值是false，我们需要修改连接参数，将其配置为true
+**这个参数的默认值是false，我们需要修改连接参数，将其配置为true**
 
-修改项目中的application.yml文件，在jdbc的url后面添加参数`&rewriteBatchedStatements=true`:
+**修改项目中的application.yml文件，在jdbc的url后面添加参数`&rewriteBatchedStatements=true`:**
 
 ```YAML
 spring:
@@ -1338,13 +1378,13 @@ spring:
 
 再次测试插入10万条数据，可以发现速度有非常明显的提升：
 
-![img](./readMeImg/1731828032412-204.png)
+![img](./MybatisPlusImg/1731828032412-204.png)
 
 在`ClientPreparedStatement`的`executeBatchInternal`中，有判断`rewriteBatchedStatements`值是否为true并重写SQL的功能：
 
 最终，SQL被重写了：
 
-![img](./readMeImg/1731828032412-205.png)
+![img](./MybatisPlusImg/1731828032412-205.png)
 
 # 3.扩展功能
 
@@ -1352,43 +1392,61 @@ spring:
 
 在使用MybatisPlus以后，基础的`Mapper`、`Service`、`PO`代码相对固定，重复编写也比较麻烦。因此MybatisPlus官方提供了代码生成器根据数据库表结构生成`PO`、`Mapper`、`Service`等相关代码。只不过代码生成器同样要编码使用，也很麻烦。
 
-这里推荐大家使用一款`MybatisPlus`的插件，它可以基于图形化界面完成`MybatisPlus`的代码生成，非常简单。
+[代码生成器 | MyBatis-Plus](https://www.baomidou.com/guides/new-code-generator/)
 
-### 3.1.1.安装插件
+[Mybatis X 插件 | MyBatis-Plus](https://www.baomidou.com/guides/mybatis-x/)
+
+<iframe src="https://www.baomidou.com/guides/new-code-generator/" width="100%" height="500px"></iframe>
+
+这里我们不使用官方的，推荐大家使用一款`MybatisPlus`的插件，它可以基于图形化界面完成`MybatisPlus`的代码生成，非常简单。
+
+### 3.1.1 安装插件
 
 在`Idea`的plugins市场中搜索并安装`MyBatisPlus`插件：
 
-![img](./readMeImg/1731828032412-206.png)
+![img](./MybatisPlusImg/1731828032412-206.png)
 
 然后重启你的Idea即可使用。
 
-### 3.1.2.使用
+### 3.1.2 使用
 
-刚好数据库中还有一张address表尚未生成对应的实体和mapper等基础代码。我们利用插件生成一下。 首先需要配置数据库地址，在Idea顶部菜单中，找到`other`，选择`Config Database`：
+刚好数据库中还有一张address表尚未生成对应的实体和mapper等基础代码。我们利用插件生成一下。 首先需要配置数据库地址，在Idea顶部菜单中，找到`other`，选择`Config Database`配置数据库表：
 
-![img](./readMeImg/1731828032412-207.png)
+![img](./MybatisPlusImg/1731828032412-207.png)
+
+新版的idea在Tools里，找不到就直接搜`Config Database`
 
 在弹出的窗口中填写数据库连接的基本信息：
 
-![img](./readMeImg/1731828032412-208.png)
+![img](./MybatisPlusImg/1731828032412-208.png)
 
 点击OK保存。
 
-然后再次点击Idea顶部菜单中的other，然后选择`Code Generator`:
+然后再次点击Idea顶部菜单中的other，然后选择`Code Generator`代码生成器:
 
-![img](./readMeImg/1731828032412-209.png)
+![img](./MybatisPlusImg/1731828032412-209.png)
 
 在弹出的表单中填写信息：
 
-![img](./readMeImg/1731828032412-210.png)
+![img](./MybatisPlusImg/1731828032412-210.png)
+
+![image-20241121194229538](./MybatisPlusImg/image-20241121194229538.png)
+
+`over file`：是否覆盖文件
 
 最终，代码自动生成到指定的位置了：
 
-## 3.2.静态工具
+## 3.2 静态工具
 
-有的时候Service之间也会相互调用，为了避免出现循环依赖问题，MybatisPlus提供一个静态工具类：`Db`，其中的一些静态方法与`IService`中方法签名基本一致，也可以帮助我们实现CRUD功能：
+### 3.2.1 静态工具api
 
-![img](./readMeImg/1731828032412-211.png)
+有的时候Service之间也会相互调用，为了避免出现循环依赖问题，MybatisPlus提供一个**静态工具类：`Db`**，其中的一些静态方法**与`IService`中方法签名基本一致**，也可以帮助我们实现CRUD功能：
+
+![img](./MybatisPlusImg/1731828032412-211.png)
+
+静态工具与IService接口的差别就是需要额外传一个参数，也就是IService的泛型
+
+除了`save...` 和 `update...`方法不用传该参数其他都需要
 
 示例：
 
@@ -1417,17 +1475,25 @@ void testDbUpdate() {
 }
 ```
 
-需求：改造根据id用户查询的接口，查询用户的同时返回用户收货地址列表
+### 3.2.2 静态工具案例
 
-首先，我们要添加一个收货地址的VO对象：
+**情景**：业务需要操作多个表，如果在service中注入其他service会造成循环依赖，这时候我们就需要使用静态工具类避免循环依赖。
+
+有循环依赖尽量避免
+
+需求：
+
+- 案例一：改造根据id查询用户的接口，查询用户的同时，查询出用户对应的所有地址
+- 案例二：改造根据id批量查询用户的接口，查询用户的同时，查询出用户对应的所有地址
+- ~~案例三：实现根据用户id查询收货地址功能，需要验证用户状态，冻结用户抛出异常（练习）~~
+
+#### 3.2.2.1  静态工具案例一
+
+**需求：改造根据id用户查询的接口，查询用户的同时返回用户收货地址列表**
+
+**首先，我们要添加一个收货地址的`VO`对象：**
 
 ```Java
-package com.itheima.mp.domain.vo;
-
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
-
 @Data
 @ApiModel(description = "收货地址VO")
 public class AddressVO{
@@ -1464,17 +1530,25 @@ public class AddressVO{
 }
 ```
 
-然后，改造原来的UserVO，添加一个地址属性：
+然后，改造原来的`UserVO`，添加一个地址属性：
 
-![img](./readMeImg/1731828032412-212.png)
+![img](./MybatisPlusImg/1731828032412-212.png)
 
-接下来，修改UserController中根据id查询用户的业务接口：
+接下来，修改`UserController`中根据id查询用户的业务接口：
 
 ```Java
 @GetMapping("/{id}")
 @ApiOperation("根据id查询用户")
 public UserVO queryUserById(@PathVariable("id") Long userId){
-    // 基于自定义service方法查询
+     /* // 修改前 不返回用户收货地址时 单表查询
+        // 1. 查询用户
+        User user = userService.getById(id);// IService中mp帮我们写好的方法
+
+        // 2. 将PO拷贝到VO返回
+        return BeanUtil.copyProperties(user, UserVO.class);
+     */
+
+    // 基于自定义service方法查询  修改后 返回收货地址 业务操作多个表
     return userService.queryUserAndAddressById(userId);
 }
 ```
@@ -1482,59 +1556,139 @@ public UserVO queryUserById(@PathVariable("id") Long userId){
 由于查询业务复杂，所以要在service层来实现。首先在IUserService中定义方法：
 
 ```Java
-package com.itheima.mp.service;
-
-import com.baomidou.mybatisplus.extension.service.IService;
-import com.itheima.mp.domain.po.User;
-import com.itheima.mp.domain.vo.UserVO;
-
 public interface IUserService extends IService<User> {
-    void deduct(Long id, Integer money);
-
     UserVO queryUserAndAddressById(Long userId);
 }
 ```
 
-然后，在UserServiceImpl中实现该方法：
+然后，在`UserServiceImpl`中实现该方法：
 
 ```Java
 @Override
-public UserVO queryUserAndAddressById(Long userId) {
-    // 1.查询用户
-    User user = getById(userId);
-    if (user == null) {
-        return null;
+public UserVO queryUserAddressById(Long id) {
+    // 1. 查询用户
+    User user = getById(id);
+    if (user == null || user.getStatus() == 2) {
+        throw new RuntimeException("用户状态异常!");
     }
-    // 2.查询收货地址
+
+    // 2. 查询地址 使用Db静态工具类 防止出现循环依赖(注入其他Service，如AddressService)
     List<Address> addresses = Db.lambdaQuery(Address.class)
-            .eq(Address::getUserId, userId)
-            .list();
-    // 3.处理vo
+        .eq(Address::getUserId, id).list();
+
+    // 3. 封装VO
     UserVO userVO = BeanUtil.copyProperties(user, UserVO.class);
-    userVO.setAddresses(BeanUtil.copyToList(addresses, AddressVO.class));
+    if (CollUtil.isNotEmpty(addresses)) {
+        userVO.setAddress(BeanUtil.copyToList(addresses, AddressVO.class));
+    }
     return userVO;
 }
 ```
 
 在查询地址时，我们采用了Db的静态方法，因此避免了注入AddressService，减少了循环依赖的风险。
 
-再来实现一个功能：
+#### 3.2.2.2 静态工具案例二
 
--  根据id批量查询用户，并查询出用户对应的所有地址
+**案例：根据id批量查询用户，并查询出用户对应的所有地址**
+
+`UserController`
+
+```java
+@ApiOperation("根据id批量查询用户接口")
+@GetMapping
+public List<UserVO> queryUserByIds(@ApiParam("用户id集合") @RequestParam("ids") List<Long> ids) {
+    /* // 不查地址，只查用户表
+        // 1. 查询用户
+        List<User> users = userService.listByIds(ids);// IService中mp帮我们写好的方法
+        // 2. 将PO集合拷贝到VO集合返回
+//        List<UserVO> userVOS = BeanUtil.copyToList(users, UserVO.class);
+        return BeanUtil.copyToList(users, UserVO.class);
+   */
+
+    // 根据id批量查询用户，并查询出用户对应的所有地址
+    return userService.queryUserAndAddressByIds(ids);
+}
+```
+
+`IUserService`
+
+```java
+List<UserVO> queryUserAndAddressByIds(List<Long> ids);
+```
+
+`IUserServiceImpl`
+
+```java
+/**
+ * 根据id批量查询用户，并查询出用户对应的所有地址
+ * @param ids
+ * @return
+ */
+@Override
+public List<UserVO> queryUserAndAddressByIds(List<Long> ids) {
+    // 1. 查询用户
+    List<User> users = listByIds(ids);
+    if (CollUtil.isEmpty(users)) {
+        // List<Object> objects = Collections.emptyList();
+        return Collections.emptyList(); // 返回空集合
+    }
+
+    // 2. 查询地址
+    // 2.1 获取用户id集合
+    List<Long> userIds = users.stream().map(User::getId).collect(Collectors.toList());
+    // 2.2 根据用户id查询地址
+    List<Address> addresses = Db.lambdaQuery(Address.class)
+        .in(Address::getUserId, userIds)
+        .list();
+    // 2.3 转换地址VO
+    List<AddressVO> addressVOList = BeanUtil.copyToList(addresses, AddressVO.class);
+    // 2.4 梳理地址集合，分类整理，相同用户的地址放在同一个集合中
+    // 键为用户id list为该用户的地址集合
+    Map<Long, List<AddressVO>> addressMap = new LinkedHashMap<>(0);
+    if (CollUtil.isNotEmpty(addressVOList)) { // 如果不为空
+        // 根据ID分组
+        addressMap = addressVOList.stream()
+            .collect(groupingBy(AddressVO::getUserId));
+    }
+
+    // 3. 转换VO返回
+    List<UserVO> list = new ArrayList<>(users.size());
+    for (User user : users) {
+        // 3.1 转换user的PO为VO
+        UserVO userVO = BeanUtil.copyProperties(user, UserVO.class);
+        list.add(userVO);
+        // 3.2 转换地址VO
+        userVO.setAddress(addressMap.get(user.getId()));
+    }
+    return list;
+}
+```
 
 ## 3.3.逻辑删除
 
-对于一些比较重要的数据，我们往往会采用逻辑删除的方案，即：
+**逻辑删除**就是基于代码逻辑模拟删除效果，但并不会真正删除数据。思路如下：
 
-- 在表中添加一个字段标记数据是否被删除
-- 当删除数据时把标记置为true
-- 查询时过滤掉标记为true的数据
+- 在表中**添加一个字段标记数据是否被删除**
+- 当**删除数据时**把标记置为1
+- **查询时**只查询标记为0的数据
+
+例如逻辑删除字段为deleted
+
+- 删除操作
+  ```sql
+  UPDATE user SET deleted = 1 WHERE id = 1 AND deleted = 0
+  ```
+
+- 查询操作
+  ```sql
+  SELECT * FROM user WHERE deleted = 0
+  ```
 
 一旦采用了逻辑删除，所有的查询和删除逻辑都要跟着变化，非常麻烦。
 
-为了解决这个问题，MybatisPlus就添加了对逻辑删除的支持。
+为了解决这个问题，**MybatisPlus就添加了对逻辑删除的支持**。
 
-注意，只有MybatisPlus生成的SQL语句才支持自动的逻辑删除，自定义SQL需要自己手动处理逻辑删除。
+**注意，只有MybatisPlus生成的SQL语句才支持自动的逻辑删除，自定义SQL需要自己手动处理逻辑删除。**
 
 例如，我们给`address`表添加一个逻辑删除字段：
 
@@ -1544,9 +1698,9 @@ alter table address add deleted bit default b'0' null comment '逻辑删除';
 
 然后给`Address`实体添加`deleted`字段：
 
-![img](./readMeImg/1731828032412-213.png)
+![img](./MybatisPlusImg/1731828032412-213.png)
 
-接下来，我们要在`application.yml`中配置逻辑删除字段：
+接下来，我们要**在`application.yml`中配置逻辑删除字段**：
 
 ```YAML
 mybatis-plus:
@@ -1557,66 +1711,100 @@ mybatis-plus:
       logic-not-delete-value: 0 # 逻辑未删除值(默认为 0)
 ```
 
-测试： 首先，我们执行一个删除操作：
+测试： 
 
 ```Java
 @Test
-void testDeleteByLogic() {
-    // 删除方法与以前没有区别
+void testLogicDelete() {
+    // 方法与普通删除一模一样，但是底层的SQL逻辑变了
+    // 删除
     addressService.removeById(59L);
+    // 查询
+    Address address = addressService.getById(59L);
+    System.out.println("address = " + address);
 }
 ```
 
 方法与普通删除一模一样，但是底层的SQL逻辑变了：
 
-![img](./readMeImg/1731828032412-214.png)
+```shell
+==>  Preparing: UPDATE address SET deleted=1 WHERE id=? AND deleted=0
+==> Parameters: 59(Long)
+<==    Updates: 1
+==>  Preparing: SELECT id,user_id,province,city,town,mobile,street,contact,is_default,notes,deleted FROM address WHERE id=? AND deleted=0
+==> Parameters: 60(Long)
+<==      Total: 1
 
-查询一下试试：
-
-```Java
-@Test
-void testQuery() {
-    List<Address> list = addressService.list();
-    list.forEach(System.out::println);
-}
+==>  Preparing: SELECT id,user_id,province,city,town,mobile,street,contact,is_default,notes,deleted FROM address WHERE id=? AND deleted=0
+==> Parameters: 59(Long)
+<==      Total: 0
+address = null
 ```
 
 会发现id为59的确实没有查询出来，而且SQL中也对逻辑删除字段做了判断：
 
-![img](./readMeImg/1731828032412-215.png)
+![img](./MybatisPlusImg/1731828032412-215.png)
 
-综上， 开启了逻辑删除功能以后，我们就可以像普通删除一样做CRUD，基本不用考虑代码逻辑问题。还是非常方便的。
+综上， **开启了逻辑删除功能以后，我们就可以像普通删除一样做CRUD**，基本不用考虑代码逻辑问题。还是非常方便的。
 
-注意： 逻辑删除本身也有自己的问题，比如：
+**注意**： 逻辑删除本身也有自己的问题，比如：
 
 - 会导致数据库表垃圾数据越来越多，从而影响查询效率
 - SQL中全都需要对逻辑删除字段做判断，影响查询效率
 
 因此，我不太推荐采用逻辑删除功能，如果数据不能删除，可以采用把数据迁移到其它表的办法。
 
-## 3.3.通用枚举
+## 3.3.枚举处理器
+
+ <img src="./MybatisPlusImg/image-20241121214800413.png" alt="image-20241121214800413" style="zoom:67%;" />
 
 User类中有一个用户状态字段：
 
-![img](./readMeImg/1731828032412-216.png)
+```java
+/**
+ * 使用状态（1正常 2冻结）
+ */
+private Integer status;
+// private UserStatus status; // UserStatus为自定义的用户状态枚举类
+```
 
-像这种字段我们一般会定义一个枚举，做业务判断的时候就可以直接基于枚举做比较。但是我们数据库采用的是`int`类型，对应的PO也是`Integer`。因此业务操作时必须手动把`枚举`与`Integer`转换，非常麻烦。
+像这种字段我们一般会定义一个枚举`private UserStatus status`，做业务判断的时候就可以直接基于枚举做比较。但是我们数据库采用的是`int`类型，对应的PO也是`Integer`。因此业务操作时必须手动把枚举`UserStatus` 与`Integer`转换，非常麻烦。
 
 因此，MybatisPlus提供了一个处理枚举的类型转换器，可以帮我们把枚举类型与数据库类型自动转换。
+
+### 3.3.0 枚举处理器使用步骤
+
+1. 给枚举中的与数据库对应value值添加@EnumValue注解
+   ```java
+   NORMAL(1, "正常"),
+   FROZEN(2, "冻结"),
+   ;
+   // 枚举类的属性
+   @EnumValue // 标记枚举中的哪个字段的值作为数据库值 即1或2
+   private final int value;
+   // 标记JSON序列化时展示的字段
+   // 如果不加@JsonValue前端查到的数据则为"NORMAL"或"FROZEN"
+   @JsonValue // 我们返回给前端值时SpringMvc的jackson包来处理json 加上该注解，返回给前端该类时只返回该属性，即"正常"或"冻结"
+   private final String desc;
+   ```
+
+2. 在配置文件中配置统一的枚举处理器，实现类型转换
+   ```yaml
+   mybatis-plus:
+     configuration:
+       default-enum-type-handler: com.baomidou.mybatisplus.core.handlers.MybatisEnumTypeHandler # 配置枚举处理器
+   ```
 
 ### 3.3.1.定义枚举
 
 我们定义一个用户状态的枚举：
 
-![img](./readMeImg/1731828032412-217.png)
+ <img src="./MybatisPlusImg/1731828032412-217.png" alt="img" style="zoom:67%;" />
 
 代码如下：
 
 ```Java
-package com.itheima.mp.enums;
-
 import com.baomidou.mybatisplus.annotation.EnumValue;
-import lombok.Getter;
 
 @Getter
 public enum UserStatus {
@@ -1635,15 +1823,38 @@ public enum UserStatus {
 
 然后把`User`类中的`status`字段改为`UserStatus` 类型：
 
-![img](./readMeImg/1731828032412-218.png)
+```java
+/**
+ * 使用状态（1正常 2冻结）
+ */
+private UserStatus status;
+```
 
-要让`MybatisPlus`处理枚举与数据库类型自动转换，我们必须告诉`MybatisPlus`，枚举中的哪个字段的值作为数据库值。 `MybatisPlus`提供了`@EnumValue`注解来标记枚举属性：
+要让`MybatisPlus`处理枚举与数据库类型自动转换，我们**必须告诉`MybatisPlus`，枚举中的哪个字段的值作为数据库值**。 `MybatisPlus`提供了**`@EnumValue`注解来标记枚举属性**：
 
-![img](./readMeImg/1731828032412-219.png)
+```java
+@Getter
+public enum UserStatus {
+    NORMAL(1, "正常"),
+    FROZEN(2, "冻结"),
+    ;
+
+    @EnumValue // 标记枚举中的哪个字段的值作为数据库值
+    private final int value;
+    // 标记JSON序列化时展示的字段 即1或2
+    // 如果不加@JsonValue前端查到的数据则为"NORMAL"或"FROZEN"
+    @JsonValue // 我们返回给前端值时SpringMvc的jackson包来处理json 加上该注解，返回给前端该类时只返回该属性 即"正常"或"冻结"
+    private final String desc;
+    UserStatus(int value, String desc) {
+        this.value = value;
+        this.desc = desc;
+    }
+}
+```
 
 ### 3.3.2.配置枚举处理器
 
-在application.yaml文件中添加配置：
+在`application.yaml`文件中添加配置：
 
 ```YAML
 mybatis-plus:
@@ -1663,25 +1874,34 @@ void testService() {
 
 最终，查询出的`User`类的`status`字段会是枚举类型：
 
-![img](./readMeImg/1731828032412-220.png)
+![img](./MybatisPlusImg/1731828032412-220.png)
 
 同时，为了使页面查询结果也是枚举格式，我们需要修改UserVO中的status属性：
 
-![img](./readMeImg/1731828032412-221.png)
+```java
+@ApiModelProperty("使用状态（1正常 2冻结）")
+//    private Integer status;
+private UserStatus status;
+```
 
 并且，在UserStatus枚举中通过`@JsonValue`注解标记JSON序列化时展示的字段：
 
-![img](./readMeImg/1731828032412-222.png)
+```java
+@JsonValue // 我们返回给前端值时SpringMvc的jackson包来处理json 加上该注解，返回给前端该类时只返回该属性，即"正常"或"冻结"
+private final String desc;
+```
 
 最后，在页面查询，结果如下：
 
-![img](./readMeImg/1731828032412-223.png)
+![img](./MybatisPlusImg/1731828032412-223.png)
 
 ## 3.4.JSON类型处理器
 
+ <img src="./MybatisPlusImg/image-20241121214643964.png" alt="image-20241121214643964" style="zoom:67%;" />
+
 数据库的user表中有一个`info`字段，是JSON类型：
 
-![img](./readMeImg/1731828032413-224.png)
+ ![img](./MybatisPlusImg/1731828032413-224.png)
 
 格式像这样：
 
@@ -1691,7 +1911,12 @@ void testService() {
 
 而目前`User`实体类中却是`String`类型：
 
-![img](./readMeImg/1731828032413-225.png)
+```java
+/**
+ * 详细信息
+ */
+private String info;
+```
 
 这样一来，我们要读取info中的属性时就非常不方便。如果要方便获取，info的类型最好是一个`Map`或者实体类。
 
@@ -1701,19 +1926,19 @@ void testService() {
 
 接下来，我们就来看看这个处理器该如何使用。
 
+**步骤图示：**
+
+![image-20241121220511800](./MybatisPlusImg/image-20241121220511800.png)
+
 ### 3.4.1.定义实体
 
 首先，我们定义一个单独实体类来与info字段的属性匹配：
 
-![img](./readMeImg/1731828032413-226.png)
+ <img src="./MybatisPlusImg/1731828032413-226.png" alt="img" style="zoom:67%;" />
 
 代码如下：
 
 ```Java
-package com.itheima.mp.domain.po;
-
-import lombok.Data;
-
 @Data
 public class UserInfo {
     private Integer age;
@@ -1724,21 +1949,36 @@ public class UserInfo {
 
 ### 3.4.2.使用类型处理器
 
-接下来，将User类的info字段修改为UserInfo类型，并声明类型处理器：
+接下来，将User类的info字段修改为UserInfo类型，并声明类型处理器`@TableField(typeHandler =  ?`：
 
-![img](./readMeImg/1731828032413-227.png)
+```java
+@Data
+@TableName(value = "tb_user", autoResultMap = true) // 因为该类内部有一个json处理器处理的字段，属于较复杂的，需要开启自动结果映射，autoResultMap = true
+public class User {
+    // 注册手机号
+    private String phone;
+    // 详细信息 数据库中是json类型
+    @TableField(typeHandler = JacksonTypeHandler.class) // 开启json类型处理器
+    private UserInfo info;
+    ...
+}
+```
 
 测试可以发现，所有数据都正确封装到UserInfo当中了：
 
-![img](./readMeImg/1731828032413-228.png)
+![img](./MybatisPlusImg/1731828032413-228.png)
 
 同时，为了让页面返回的结果也以对象格式返回，我们要修改UserVO中的info字段：
 
-![img](./readMeImg/1731828032413-229.png)
+```java
+@ApiModelProperty("详细信息")
+//    private String info;
+private UserInfo info;
+```
 
 此时，在页面查询结果如下：
 
-![img](./readMeImg/1731828032413-230.png)
+![img](./MybatisPlusImg/1731828032413-230.png)
 
 ## 3.5.配置加密（选学）
 
@@ -1804,7 +2044,7 @@ spring:
 
 单元测试的时候不能添加启动参数，所以要在测试类的注解上配置：
 
-![img](./readMeImg/1731828032413-231.png)
+![img](./MybatisPlusImg/1731828032413-231.png)
 
 然后随意运行一个单元测试，可以发现数据库查询正常。
 
@@ -1835,7 +2075,7 @@ MybatisPlus提供了很多的插件功能，进一步拓展其功能。目前已
 
 在项目中新建一个配置类：
 
-![img](./readMeImg/1731828032413-232.png)
+![img](./MybatisPlusImg/1731828032413-232.png)
 
 其代码如下：
 
@@ -1883,7 +2123,7 @@ void testPageQuery() {
 
 运行的SQL如下：
 
-![img](./readMeImg/1731828032413-233.png)
+![img](./MybatisPlusImg/1731828032413-233.png)
 
 这里用到了分页参数，Page，即可以支持分页参数，也可以支持排序参数。常见的API如下：
 
@@ -1942,7 +2182,7 @@ public class UserQuery {
 
 其中缺少的仅仅是分页条件，而分页条件不仅仅用户分页查询需要，以后其它业务也都有分页查询的需求。因此建议将分页查询条件单独定义为一个`PageQuery`实体：
 
-![img](./readMeImg/1731828032413-234.png)
+![img](./MybatisPlusImg/1731828032413-234.png)
 
 `PageQuery`是前端提交的查询参数，一般包含四个属性：
 
@@ -1993,11 +2233,11 @@ public class UserQuery extends PageQuery {
 
 返回值的用户实体沿用之前定一个`UserVO`实体：
 
-![img](./readMeImg/1731828032413-235.png)
+![img](./MybatisPlusImg/1731828032413-235.png)
 
 最后，则是分页实体PageDTO:
 
-![img](./readMeImg/1731828032413-236.png)
+![img](./MybatisPlusImg/1731828032413-236.png)
 
 代码如下：
 
@@ -2092,7 +2332,7 @@ public PageDTO<UserVO> queryUsersPage(PageQuery query) {
 
 启动项目，在页面查看：
 
-![img](./readMeImg/1731828032413-237.png)
+![img](./MybatisPlusImg/1731828032413-237.png)
 
 ### 4.2.3.改造PageQuery实体
 
@@ -2271,7 +2511,7 @@ public PageDTO<UserVO> queryUserByPage(PageQuery query) {
 
 最终查询的结果如下：
 
-![img](./readMeImg/1731828032413-238.png)
+![img](./MybatisPlusImg/1731828032413-238.png)
 
 # 5.作业
 

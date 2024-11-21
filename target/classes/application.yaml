@@ -19,6 +19,9 @@ mybatis-plus:
   global-config:
     db-config:
       id-type: auto
+      logic-delete-field: deleted # 配置逻辑删除的字段
+  configuration:
+    default-enum-type-handler: com.baomidou.mybatisplus.core.handlers.MybatisEnumTypeHandler # 配置枚举处理器
 
 # swagger 配置  主要用于RESTful API的文档生成和测试。
 knife4j:

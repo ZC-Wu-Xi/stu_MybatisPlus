@@ -1,8 +1,11 @@
 package com.itheima.mp.domain.po;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
+import com.itheima.mp.enums.UserStatus;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -11,7 +14,7 @@ import java.time.LocalDateTime;
  * 用户实体
  */
 @Data
-@TableName("tb_user")
+@TableName(value = "tb_user", autoResultMap = true) // 因为该类内部有一个json处理器处理的类，属于较复杂的，需要开启自动结果映射，autoResultMap = true
 public class User {
 
     /**
@@ -37,13 +40,17 @@ public class User {
 
     /**
      * 详细信息
+     * 数据库中是json类型
      */
-    private String info;
+//    private String info;
+    @TableField(typeHandler = JacksonTypeHandler.class) // 开启json类型处理器
+    private UserInfo info;
 
     /**
      * 使用状态（1正常 2冻结）
      */
-    private Integer status;
+//    private Integer status;
+    private UserStatus status; // 配置枚举处理器后
 
     /**
      * 账户余额

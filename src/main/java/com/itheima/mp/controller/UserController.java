@@ -56,21 +56,33 @@ public class UserController {
     @ApiOperation("根据id查询用户接口")
     @GetMapping("{id}")
     public UserVO queryUserById(@ApiParam("用户id") @PathVariable("id") Long id) {
+        /* // 查询用户
         // 1. 查询用户
         User user = userService.getById(id);// IService中mp帮我们写好的方法
+
         // 2. 将PO拷贝到VO返回
         return BeanUtil.copyProperties(user, UserVO.class);
+        */
+
+        // 根据id用户查询的接口，查询用户的同时返回用户收货地址列表
+        return userService.queryUserAndAddressById(id);
     }
 
     @ApiOperation("根据id批量查询用户接口")
     @GetMapping
     public List<UserVO> queryUserByIds(@ApiParam("用户id集合") @RequestParam("ids") List<Long> ids) {
+        /*
         // 1. 查询用户
         List<User> users = userService.listByIds(ids);// IService中mp帮我们写好的方法
         // 2. 将PO集合拷贝到VO集合返回
 //        List<UserVO> userVOS = BeanUtil.copyToList(users, UserVO.class);
         return BeanUtil.copyToList(users, UserVO.class);
+        */
+
+        // 根据id批量查询用户，并查询出用户对应的所有地址
+        return userService.queryUserAndAddressByIds(ids);
     }
+
 
     /**
      * 根据id扣减用户余额
