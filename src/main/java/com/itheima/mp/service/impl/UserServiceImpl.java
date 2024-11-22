@@ -2,11 +2,16 @@ package com.itheima.mp.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.OrderItem;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.Db;
+import com.itheima.mp.domain.dto.PageDTO;
 import com.itheima.mp.domain.po.Address;
 import com.itheima.mp.domain.po.User;
+import com.itheima.mp.domain.query.UserQuery;
 import com.itheima.mp.domain.vo.AddressVO;
 import com.itheima.mp.domain.vo.UserVO;
 import com.itheima.mp.enums.UserStatus;
@@ -79,6 +84,74 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
                 .gt(minBalance != null, User::getBalance, minBalance)
                 .lt(maxBalance != null, User::getBalance, maxBalance)
                 .list();
+    }
+
+    /**
+     * 复杂条件分页查询
+     * @param query
+     * @return
+     */
+    @Override
+    public PageDTO<UserVO> queryUsersPage(UserQuery query) {
+        String name = query.getName();
+        Integer status = query.getStatus();
+        Integer minBalance = query.getMinBalance();
+        Integer maxBalance = query.getMaxBalance();
+
+        /*
+        // 1. 构建分页条件
+        // 1.1 分页条件
+        Page<User> page = Page.of(query.getPageNo(), query.getPageSize());
+        // 1.2 构建排序条件
+        if (StrUtil.isNotBlank(query.getSortBy())) { // 排序条件不为空
+            page.addOrder(new OrderItem(query.getSortBy(), query.isAsc()));
+        } else { // 排序条件为空
+            // 默认按照更新时间降序排
+            page.addOrder(new OrderItem("update_time", false));
+        }
+        */
+        // 1. 构建分页条件
+        Page<User> page = query.toMPPageDefaultSortByUpdateTime();
+
+        // 2. 分页查询
+        Page<User> p = lambdaQuery()
+                .like(name != null, User::getUsername, name)
+                .eq(status != null, User::getStatus, status)
+                .gt(minBalance != null, User::getBalance, minBalance)
+                .lt(maxBalance != null, User::getBalance, maxBalance)
+                .page(page);
+
+        /*
+        // 3. 封装VO结果
+        PageDTO<UserVO> dto = new PageDTO<>();
+        // 3.1 总条数
+        dto.setTotal(p.getTotal());
+        // 3.2 总页数
+        dto.setPages(p.getPages());
+        // 3.3 当前页数据
+        List<User> records = p.getRecords();
+        if (CollUtil.isEmpty(records)) {
+            dto.setList(Collections.emptyList()); // 返回空集合
+            return dto;
+        }
+        // 3.4 拷贝UserVO
+        dto.setList(BeanUtil.copyToList(records, UserVO.class));
+
+        // 4. 返回
+        return dto;
+        */
+        // 3. 封装VO结果
+//        return PageDTO.of(page, UserVO.class);
+//        return PageDTO.of(p, user -> BeanUtil.copyProperties(user, UserVO.class));
+        return PageDTO.of(p, user -> {
+            // 1. 拷贝基础属性
+            UserVO vo = BeanUtil.copyProperties(user, UserVO.class);
+            // 2. 处理特殊逻辑
+            // 比如说对用户名隐藏后两位为**
+            vo.setUsername(vo.getUsername().substring(0, vo.getUsername().length() - 2) + "**");
+            // ...
+            return vo;
+        });
     }
 
     /**

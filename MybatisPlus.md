@@ -2050,9 +2050,15 @@ spring:
 
 # 4. 插件功能
 
+ <img src="./MybatisPlusImg/image-20241122090724925.png" alt="image-20241122090724925" style="zoom:80%;" />
+
+MyBatisPlus基于MyBatis的Interceptor实现了一个基础拦截器，并在内部保存了MyBatisPlus的内置拦截器的集合：
+
+<img src="./MybatisPlusImg/image-20241122090839652.png" alt="image-20241122090839652" style="zoom:80%;" />
+
 MybatisPlus提供了很多的插件功能，进一步拓展其功能。目前已有的插件有：
 
-- `PaginationInnerInterceptor`：自动分页
+- `PaginationInnerInterceptor`：**自动分页**
 - `TenantLineInnerInterceptor`：多租户
 - `DynamicTableNameInnerInterceptor`：动态表名
 - `OptimisticLockerInnerInterceptor`：乐观锁
@@ -2080,23 +2086,19 @@ MybatisPlus提供了很多的插件功能，进一步拓展其功能。目前已
 其代码如下：
 
 ```Java
-package com.itheima.mp.config;
-
-import com.baomidou.mybatisplus.annotation.DbType;
-import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
-import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
 @Configuration
-public class MybatisConfig {
-
+public class MyBatisConfig {
     @Bean
     public MybatisPlusInterceptor mybatisPlusInterceptor() {
-        // 初始化核心插件
+        // 1. 定义核心插件，没有功能，仅起到拦截作用
         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
-        // 添加分页插件
-        interceptor.addInnerInterceptor(new PaginationInnerInterceptor(DbType.MYSQL));
+        // 2. 创建分页插件
+        PaginationInnerInterceptor paginationInnerInterceptor = new PaginationInnerInterceptor(DbType.MYSQL);
+        // 一些分页插件的配置(还有其他的配置)
+        paginationInnerInterceptor.setMaxLimit(1000L); // 最大一次查询1000条
+
+        // 3. 向核心插件添加分页插件
+        interceptor.addInnerInterceptor(paginationInnerInterceptor);
         return interceptor;
     }
 }
@@ -2109,21 +2111,42 @@ public class MybatisConfig {
 ```Java
 @Test
 void testPageQuery() {
-    // 1.分页查询，new Page()的两个参数分别是：页码、每页大小
-    Page<User> p = userService.page(new Page<>(2, 2));
-    // 2.总条数
-    System.out.println("total = " + p.getTotal());
-    // 3.总页数
-    System.out.println("pages = " + p.getPages());
-    // 4.数据
-    List<User> records = p.getRecords();
-    records.forEach(System.out::println);
+    int pageNo = 1, pageSize = 2; // 第一页，一页查2条
+    // 1. 准备分页条件
+    // 1.1 分页条件
+    Page<User> page = Page.of(pageNo, pageSize);
+    // 1.2 排序条件
+    page.addOrder(new OrderItem("balance", false)); // false代表降序
+    page.addOrder(new OrderItem("id", true)); // order可以添加多个 如果balance相等根据id升序排
+    // 2. 分页查询
+    Page<User> p = userService.page(page);
+    // 3. 解析
+    System.out.println("JSONUtil.toJsonStr(p) = " + JSONUtil.toJsonStr(p));
+    long total = p.getTotal(); // 查询到的总条数
+    System.out.println("total = " + total);
+    long pages = p.getPages(); // 查询到的总页数
+    System.out.println("pages = " + pages);
+    List<User> users = p.getRecords();
+    users.forEach(System.out::println);
 }
 ```
 
-运行的SQL如下：
+控制台：
 
-![img](./MybatisPlusImg/1731828032413-233.png)
+```shell
+ ==>  Preparing: SELECT COUNT(*) AS total FROM tb_user
+ ==> Parameters: 
+ <==      Total: 1
+ ==>  Preparing: SELECT id, username, password, phone, info, status, balance, create_time, update_time FROM tb_user ORDER BY balance DESC, id ASC LIMIT ?
+ ==> Parameters: 2(Long)
+ <==      Total: 2
+ 
+ JSONUtil.toJsonStr(p) = {"records":[{"id":3,"username":"Hope","password":"123","phone":"13900112222","info":{"age":25,"intro":"上进青年","gender":"male"},"status":"NORMAL","balance":100000,"createTime":1687185464000,"updateTime":1687185464000},{"id":1,"username":"Jack","password":"123","phone":"13900112224","info":{"age":20,"intro":"佛系青年","gender":"male"},"status":"NORMAL","balance":1580,"createTime":1684500621000,"updateTime":1731926302000}],"total":5,"size":2,"current":1,"orders":[{"column":"balance","asc":false},{"column":"id","asc":true}],"optimizeCountSql":true,"searchCount":true}
+total = 5
+pages = 3
+User(id=3, username=Hope, password=123, phone=13900112222, info=UserInfo(age=25, intro=上进青年, gender=male), status=NORMAL, balance=100000, createTime=2023-06-19T22:37:44, updateTime=2023-06-19T22:37:44)
+User(id=1, username=Jack, password=123, phone=13900112224, info=UserInfo(age=20, intro=佛系青年, gender=male), status=NORMAL, balance=1580, createTime=2023-05-19T20:50:21, updateTime=2024-11-18T18:38:22)
+```
 
 这里用到了分页参数，Page，即可以支持分页参数，也可以支持排序参数。常见的API如下：
 
@@ -2133,11 +2156,10 @@ int pageNo = 1, pageSize = 5;
 Page<User> page = Page.of(pageNo, pageSize);
 // 排序参数, 通过OrderItem来指定
 page.addOrder(new OrderItem("balance", false));
-
 userService.page(page);
 ```
 
-## 4.2.通用分页实体
+## 4.2.案例-通用分页实体
 
 现在要实现一个用户分页查询的接口，接口规范如下：
 
@@ -2145,9 +2167,9 @@ userService.page(page);
 | -------- | ------------------------------------------------------------ |
 | 请求方式 | GET                                                          |
 | 请求路径 | /users/page                                                  |
-| 请求参数 | `{    "pageNo": 1,    "pageSize": 5,    "sortBy": "balance",    "isAsc": false,    "name": "o",    "status": 1 }` |
-| 返回值   | `{    "total": 100006,    "pages": 50003,    "list": [        {            "id": 1685100878975279298,            "username": "user_9",            "info": {                "age": 24,                "intro": "英文老师",                "gender": "female"            },            "status": "正常",            "balance": 2000        }    ] }` |
-| 特殊说明 | 如果排序字段为空，默认按照更新时间排序排序字段不为空，则按照排序字段排序 |
+| 请求参数 | `{"pageNo": 1,"pageSize": 5,"sortBy": "balance","isAsc": false,"name": "jock", "status": 1 }` |
+| 返回值   | `{"total": 100006, "pages": 50003, "list": [{ "id": 1685100878975279298, "username": "user_9", "info": {"age": 24, "intro": "英文老师", "gender": "female"            }, "status": "正常", "balance": 2000 }]}` |
+| 特殊说明 | 如果排序字段为空，默认按照更新时间排序<br />排序字段不为空，则按照排序字段排序 |
 
 这里需要定义3个实体：
 
@@ -2160,12 +2182,6 @@ userService.page(page);
 由于UserQuery之前已经定义过了，并且其中已经包含了过滤条件，具体代码如下：
 
 ```Java
-package com.itheima.mp.domain.query;
-
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
-
 @Data
 @ApiModel(description = "用户查询条件实体")
 public class UserQuery {
@@ -2180,9 +2196,9 @@ public class UserQuery {
 }
 ```
 
-其中缺少的仅仅是分页条件，而分页条件不仅仅用户分页查询需要，以后其它业务也都有分页查询的需求。因此建议将分页查询条件单独定义为一个`PageQuery`实体：
+其中**缺少**的仅仅是**分页条件**，而分页条件不仅仅用户分页查询需要，以后其它业务也都有分页查询的需求。因此建议将分页查询条件单独定义为一个`PageQuery`实体：
 
-![img](./MybatisPlusImg/1731828032413-234.png)
+ <img src="./MybatisPlusImg/1731828032413-234.png" alt="img" style="zoom:67%;" />
 
 `PageQuery`是前端提交的查询参数，一般包含四个属性：
 
@@ -2190,6 +2206,8 @@ public class UserQuery {
 - `pageSize`：每页数据条数
 - `sortBy`：排序字段
 - `isAsc`：是否升序
+
+**分页查询实体：**
 
 ```Java
 @Data
@@ -2206,16 +2224,9 @@ public class PageQuery {
 }
 ```
 
-然后，让我们的UserQuery继承这个实体：
+然后，让我们的**UserQuery继承这个实体**：
 
 ```Java
-package com.itheima.mp.domain.query;
-
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-
 @EqualsAndHashCode(callSuper = true)
 @Data
 @ApiModel(description = "用户查询条件实体")
@@ -2235,21 +2246,13 @@ public class UserQuery extends PageQuery {
 
 ![img](./MybatisPlusImg/1731828032413-235.png)
 
-最后，则是分页实体PageDTO:
+最后，则是分页实体PageDTO(我们有可能返回VO也有可能返回DTO去调其他微服务):
 
 ![img](./MybatisPlusImg/1731828032413-236.png)
 
 代码如下：
 
 ```Java
-package com.itheima.mp.domain.dto;
-
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
-
-import java.util.List;
-
 @Data
 @ApiModel(description = "分页结果")
 public class PageDTO<T> {
@@ -2267,20 +2270,9 @@ public class PageDTO<T> {
 我们在`UserController`中定义分页查询用户的接口：
 
 ```Java
-package com.itheima.mp.controller;
-
-import com.itheima.mp.domain.dto.PageDTO;
-import com.itheima.mp.domain.query.PageQuery;
-import com.itheima.mp.domain.vo.UserVO;
-import com.itheima.mp.service.UserService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 @RestController
 @RequestMapping("users")
-@RequiredArgsConstructor
+@RequiredArgsConstructor // lombok必备参数的构造函数，该构造函数包含所有被 final 修饰的字段，以及所有被 @NonNull 注解修饰的字段
 public class UserController {
 
     private final UserService userService;
@@ -2301,6 +2293,51 @@ PageDTO<UserVO> queryUsersPage(PageQuery query);
 ```
 
 接下来，在UserServiceImpl中实现该方法：
+
+```java
+@Override
+public PageDTO<UserVO> queryUsersPage(UserQuery query) {
+    String name = query.getName();
+    Integer status = query.getStatus();
+    Integer minBalance = query.getMinBalance();
+    Integer maxBalance = query.getMaxBalance();
+    // 1. 构建分页条件
+    // 1.1 分页条件
+    Page<User> page = Page.of(query.getPageNo(), query.getPageSize());
+    // 1.2 构建排序条件
+    if (StrUtil.isNotBlank(query.getSortBy())) { // 排序条件不为空
+        page.addOrder(new OrderItem(query.getSortBy(), query.isAsc()));
+    } else { // 排序条件为空
+        // 默认按照更新时间降序排
+        page.addOrder(new OrderItem("update_time", false));
+    }
+    // 2. 分页条件查询
+    Page<User> p = lambdaQuery()
+        .like(name != null, User::getUsername, name)
+        .eq(status != null, User::getStatus, status)
+        .gt(minBalance != null, User::getBalance, minBalance)
+        .lt(maxBalance != null, User::getBalance, maxBalance)
+        .page(page);
+    // 3. 封装VO结果
+    PageDTO<UserVO> dto = new PageDTO<>();
+    // 3.1 总条数
+    dto.setTotal(p.getTotal());
+    // 3.2 总页数
+    dto.setPages(p.getPages());
+    // 3.3 当前页数据
+    List<User> records = p.getRecords();
+    if (CollUtil.isEmpty(records)) {
+        dto.setList(Collections.emptyList()); // 返回空集合
+        return dto;
+    }
+    // 3.4 拷贝UserVO
+    dto.setList(BeanUtil.copyToList(records, UserVO.class));
+    // 4. 返回
+    return dto;
+}
+```
+
+或
 
 ```Java
 @Override
@@ -2338,48 +2375,68 @@ public PageDTO<UserVO> queryUsersPage(PageQuery query) {
 
 在刚才的代码中，从`PageQuery`到`MybatisPlus`的`Page`之间转换的过程还是比较麻烦的。
 
-我们完全可以在`PageQuery`这个实体中定义一个工具方法，简化开发。 像这样：
+我们完全可以**在`PageQuery`这个实体中定义一个工具方法，简化开发**。 
+
+在PageQuery中定义方法，将PageQuery对象转为MyBatisPlus中的Page对象，像这样：
 
 ```Java
-package com.itheima.mp.domain.query;
-
-import com.baomidou.mybatisplus.core.metadata.OrderItem;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import lombok.Data;
-
 @Data
+@ApiModel(description = "分页查询实体")
 public class PageQuery {
-    private Integer pageNo;
-    private Integer pageSize;
+    @ApiModelProperty("页码")
+    private Integer pageNo = 1;
+    @ApiModelProperty("页码")
+    private Integer pageSize = 5;
+    @ApiModelProperty("排序字段")
     private String sortBy;
-    private Boolean isAsc;
+    @ApiModelProperty("是否升序")
+    private boolean isAsc = true;
 
-    public <T>  Page<T> toMpPage(OrderItem ... orders){
-        // 1.分页条件
-        Page<T> p = Page.of(pageNo, pageSize);
-        // 2.排序条件
-        // 2.1.先看前端有没有传排序字段
-        if (sortBy != null) {
-            p.addOrder(new OrderItem(sortBy, isAsc));
-            return p;
+    // 封装一些分页查询会用到的工具方法
+    
+    /**
+     * 构建分页条件 传入多个排序方式
+     * @param items 排序方式 可变参数
+     * @return
+     * @param <T>
+     */
+    public <T> Page<T> toMPPage(OrderItem... items) {
+        // 1. 分页条件
+        Page<T> page = Page.of(pageNo, pageSize);
+        // 2. 构建排序条件
+        if (StrUtil.isNotBlank(sortBy)) { // 排序条件不为空
+            page.addOrder(new OrderItem(sortBy, isAsc));
+        } else if (items != null){ // 排序条件为空
+            // 默认排序方式
+            page.addOrder(items);
         }
-        // 2.2.再看有没有手动指定排序字段
-        if(orders != null){
-            p.addOrder(orders);
-        }
-        return p;
+        return page;
     }
-
-    public <T> Page<T> toMpPage(String defaultSortBy, boolean isAsc){
-        return this.toMpPage(new OrderItem(defaultSortBy, isAsc));
+    /**
+     * 构建分页条件 传入排序字段和排序方式
+     * @param defaultSortBy 排序字段
+     * @param defaultAsc 排序方式
+     * @return
+     * @param <T>
+     */
+    public <T> Page<T> toMPPage(String defaultSortBy, Boolean defaultAsc) {
+        return toMPPage(new OrderItem(defaultSortBy, defaultAsc));
     }
-
-    public <T> Page<T> toMpPageDefaultSortByCreateTimeDesc() {
-        return toMpPage("create_time", false);
+    /**
+     * 构建分页条件 默认按创建时间排序
+     * @return
+     * @param <T>
+     */
+    public <T> Page<T> toMPPageDefaultSortByCreateTime() {
+        return toMPPage(new OrderItem("create_time", false));
     }
-
-    public <T> Page<T> toMpPageDefaultSortByUpdateTimeDesc() {
-        return toMpPage("update_time", false);
+    /**
+     * 构建分页条件 默认按修改时间排序
+     * @return
+     * @param <T>
+     */
+    public <T> Page<T> toMPPageDefaultSortByUpdateTime() {
+        return toMPPage(new OrderItem("update_time", false));
     }
 }
 ```
@@ -2395,86 +2452,100 @@ Page<User> page = query.toMpPageDefaultSortByCreateTimeDesc();
 
 在查询出分页结果后，数据的非空校验，数据的vo转换都是模板代码，编写起来很麻烦。
 
-我们完全可以将其封装到PageDTO的工具方法中，简化整个过程：
+我们完全可以将其封装到PageDTO的工具方法中，简化整个过程。
 
-```Java
-package com.itheima.mp.domain.dto;
+在PageDTO中定义方法，**将MyBatisPlus中的Page结果转为PageDTO结果**：
 
-import cn.hutool.core.bean.BeanUtil;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
+```java
 @Data
-@NoArgsConstructor
+@ApiModel(description = "分页结果")
 @AllArgsConstructor
-public class PageDTO<V> {
+@NoArgsConstructor
+public class PageDTO<T> {
+    @ApiModelProperty("总条数")
     private Long total;
+    @ApiModelProperty("总页数")
     private Long pages;
-    private List<V> list;
+    @ApiModelProperty("集合")
+    private List<T> list;
 
-    /
-     * 返回空分页结果
+    
+    // 封装一些分页查询会用到的工具方法
+    
+    /**
+     * 封装VO结果——分页查询
+     * 将MybatisPlus分页结果转为 VO分页结果
+     * 这个方法只能对两个类中属性名一样的进行拷贝
      * @param p MybatisPlus的分页结果
-     * @param <V> 目标VO类型
-     * @param <P> 原始PO类型
-     * @return VO的分页对象
+     * @param clazz 返回给前端的VO对象
+     * @return
+     * @param <PO>
+     * @param <VO>
+     */
+    public static <PO, VO> PageDTO<VO> of(Page<PO> p, Class<VO> clazz) {
+        // 封装VO结果
+        PageDTO<VO> dto = new PageDTO<>();
+        // 1. 总条数
+        dto.setTotal(p.getTotal());
+        // 2. 总页数
+        dto.setPages(p.getPages());
+        // 3. 当前页数据
+        List<PO> records = p.getRecords();
+        if (CollUtil.isEmpty(records)) {
+            dto.setList(Collections.emptyList()); // 返回空集合
+            return dto;
+        }
+        // 4. 拷贝VO
+        dto.setList(BeanUtil.copyToList(records, clazz));
+
+        // 5. 返回
+        return dto;
+    }
+
+    /**
+     * 封装VO结果——分页查询
+     * 将MybatisPlus分页结果转为 VO分页结果
+     * 自定义拷贝逻辑
+     * @param p
+     * @param convertor
+     * @return
+     * @param <PO>
+     * @param <VO>
+     */
+    public static <PO, VO> PageDTO<VO> of(Page<PO> p, Function<PO, VO> convertor) {
+        // 封装VO结果
+        PageDTO<VO> dto = new PageDTO<>();
+        // 1. 总条数
+        dto.setTotal(p.getTotal());
+        // 2. 总页数
+        dto.setPages(p.getPages());
+        // 3. 当前页数据
+        List<PO> records = p.getRecords();
+        if (CollUtil.isEmpty(records)) {
+            dto.setList(Collections.emptyList()); // 返回空集合
+            return dto;
+        }
+        // 4. 拷贝VO
+        dto.setList(records.stream().map(convertor).collect(Collectors.toList()));
+        // 5. 返回
+        return dto;
+    }
+
+    /**
+     * 返回空分页结果
+     * 将MybatisPlus分页结果转为 VO分页结果
+     * @param p
+     * @return
+     * @param <V>
+     * @param <P>
      */
     public static <V, P> PageDTO<V> empty(Page<P> p){
         return new PageDTO<>(p.getTotal(), p.getPages(), Collections.emptyList());
     }
-
-    /
-     * 将MybatisPlus分页结果转为 VO分页结果
-     * @param p MybatisPlus的分页结果
-     * @param voClass 目标VO类型的字节码
-     * @param <V> 目标VO类型
-     * @param <P> 原始PO类型
-     * @return VO的分页对象
-     */
-    public static <V, P> PageDTO<V> of(Page<P> p, Class<V> voClass) {
-        // 1.非空校验
-        List<P> records = p.getRecords();
-        if (records == null || records.size() <= 0) {
-            // 无数据，返回空结果
-            return empty(p);
-        }
-        // 2.数据转换
-        List<V> vos = BeanUtil.copyToList(records, voClass);
-        // 3.封装返回
-        return new PageDTO<>(p.getTotal(), p.getPages(), vos);
-    }
-
-    /
-     * 将MybatisPlus分页结果转为 VO分页结果，允许用户自定义PO到VO的转换方式
-     * @param p MybatisPlus的分页结果
-     * @param convertor PO到VO的转换函数
-     * @param <V> 目标VO类型
-     * @param <P> 原始PO类型
-     * @return VO的分页对象
-     */
-    public static <V, P> PageDTO<V> of(Page<P> p, Function<P, V> convertor) {
-        // 1.非空校验
-        List<P> records = p.getRecords();
-        if (records == null || records.size() <= 0) {
-            // 无数据，返回空结果
-            return empty(p);
-        }
-        // 2.数据转换
-        List<V> vos = records.stream().map(convertor).collect(Collectors.toList());
-        // 3.封装返回
-        return new PageDTO<>(p.getTotal(), p.getPages(), vos);
-    }
 }
 ```
 
-最终，业务层的代码可以简化为：
+**最终，业务层的代码可以简化为：**
 
 ```Java
 @Override
@@ -2499,9 +2570,10 @@ public PageDTO<UserVO> queryUserByPage(PageQuery query) {
     page(page);
     // 3.封装返回
     return PageDTO.of(page, user -> {
-        // 拷贝属性到VO
+        // 3.1 拷贝属性到VO
         UserVO vo = BeanUtil.copyProperties(user, UserVO.class);
-        // 用户名脱敏
+        // 3.2 处理特殊逻辑
+        // 比如说对用户名隐藏后两位为**
         String username = vo.getUsername();
         vo.setUsername(username.substring(0, username.length() - 2) + "");
         return vo;
@@ -2513,6 +2585,10 @@ public PageDTO<UserVO> queryUserByPage(PageQuery query) {
 
 ![img](./MybatisPlusImg/1731828032413-238.png)
 
+> 注：如果我们用的不只有mp我们尽量把工具方法与实体解耦，专门创一个工具类
+
 # 5.作业
 
 尝试改造项目一中的`Service`层和`Mapper`层实现，用`MybatisPlus`代替单表的CRUD
+
+> 暂时未做

@@ -1,5 +1,9 @@
 package com.itheima.mp.service;
 
+
+import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.metadata.OrderItem;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.itheima.mp.domain.po.User;
 import com.itheima.mp.domain.po.UserInfo;
 import org.junit.jupiter.api.Test;
@@ -95,4 +99,29 @@ class IUserServiceTest {
         return user;
     }
 
+    /**
+     * 使用分页插件进行分页查询
+     */
+    @Test
+    void testPageQuery() {
+        int pageNo = 1, pageSize = 2; // 第一页，一页查2条
+        // 1. 准备分页条件
+        // 1.1 分页条件
+        Page<User> page = Page.of(pageNo, pageSize);
+        // 1.2 排序条件
+        page.addOrder(new OrderItem("balance", false)); // false代表降序
+        page.addOrder(new OrderItem("id", true)); // order可以添加多个 如果balance相等根据id升序排
+
+        // 2. 分页查询
+        Page<User> p = userService.page(page);
+
+        // 3. 解析
+        System.out.println("JSONUtil.toJsonStr(p) = " + JSONUtil.toJsonStr(p));
+        long total = p.getTotal(); // 查询到的总条数
+        System.out.println("total = " + total);
+        long pages = p.getPages(); // 查询到的总页数
+        System.out.println("pages = " + pages);
+        List<User> users = p.getRecords();
+        users.forEach(System.out::println);
+    }
 }
