@@ -1,3 +1,9 @@
+[b站黑马教学视频传送门](https://www.bilibili.com/video/BV1S142197x7?spm_id_from=333.788.videopod.episodes&bvid=BV1S142197x7&vd_source=796ed40051b301bfa3a84ba357f4828c&p=2)
+
+[黑马官方飞书笔记传送门](https://b11et3un53m.feishu.cn/wiki/space/7229522334074372099?ccm_open_type=lark_wiki_spaceLink&open_tab_from=wiki_home)
+
+**个人笔记(黑马官方飞书笔记改)：**
+
 大家在日常开发中应该能发现，单表的CRUD功能代码重复度很高，也没有什么难度。而这部分代码量往往比较大，开发起来比较费时。
 
 因此，目前企业中都会使用一些组件来简化或省略单表的CRUD开发工作。目前在国内使用较多的一个组件就是MybatisPlus.
